@@ -1,5 +1,5 @@
 :root {
-  --wf-bg: #121212;
+  --wf-bg: #0b0a08;
   --wf-surface: #1a1917;
   --wf-surface-2: #22201c;
   --wf-cream: #f5efe6;
@@ -18,7 +18,7 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  background-color: var(--wf-bg);
+  background-color: #0b0a08;
   color: var(--wf-cream);
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
@@ -36,16 +36,14 @@ button {
   cursor: pointer;
 }
 
-/* Navbar */
+/* Navbar (No heavy backdrop-filter so sliding rooms stay at locked 60fps) */
 .wf-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(15, 14, 12, 0.86);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(14, 13, 11, 0.92);
   border-bottom: 1px solid rgba(212, 175, 55, 0.24);
   padding: 0.65rem 2.2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
@@ -100,7 +98,7 @@ button {
   font-weight: 600;
   font-size: 0.92rem;
   white-space: nowrap;
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .wf-btn:hover {
@@ -120,7 +118,7 @@ button {
   font-size: 0.95rem;
   letter-spacing: 0.3px;
   box-shadow: 0 6px 20px rgba(212, 175, 55, 0.28);
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .wf-btn-gold:hover {
@@ -150,7 +148,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .wf-bag-btn:hover {
@@ -254,16 +252,15 @@ button {
   margin: 0 0 1.6rem 0;
 }
 
-/* Form Card */
+/* Translucent Charcoal Card over Ghost Fibers */
 .wf-card {
-  background: linear-gradient(160deg, rgba(24, 22, 18, 0.84) 0%, rgba(15, 14, 12, 0.88) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: linear-gradient(160deg, rgba(24, 22, 18, 0.9) 0%, rgba(15, 14, 12, 0.94) 100%);
   border: 1px solid var(--wf-border);
   border-radius: 22px;
   padding: 1.6rem;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
 }
+
 .wf-input,
 .wf-textarea {
   width: 100%;
@@ -293,7 +290,7 @@ button {
 }
 
 .wf-alert-err {
-  background: rgba(185, 56, 56, 0.16);
+  background: rgba(185, 56, 56, 0.18);
   border: 1px solid rgba(220, 80, 80, 0.55);
   color: #ffd6d6;
   border-radius: 14px;
@@ -317,8 +314,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 50000;
-  background: rgba(6, 6, 5, 0.78);
-  backdrop-filter: blur(8px);
+  background: rgba(6, 6, 5, 0.82);
   display: flex;
   align-items: center;
   justify-content: center;
