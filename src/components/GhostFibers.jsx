@@ -1,128 +1,163 @@
 import React, { useEffect, useRef } from 'react';
 
 const VERTEX_SHADER = `#version 300 es
-in vec2 position;
-void main() {
-  gl_Position = vec4(position, 0.0, 1.0);
-}`;
-
-const FRAGMENT_SHADER = `#version 300 es
 precision highp float;
+
+in vec4 aParticle; // x = u (-1.35..1.35), y = v (-0.5..0.5), z = ribbonId (0,1,2,3=dust), w = seed
 
 uniform vec2 uResolution;
 uniform float uTime;
 uniform vec2 uMouse;
 uniform float uMouseInfluence;
-uniform float uIntensity;
-uniform float uFiberCount;
-uniform float uWarpAmount;
-uniform float uNoiseScale;
-uniform float uGlowAmount;
-uniform float uVignette;
+uniform float uDpr;
+uniform float uSpeed;
+
+out float vBokeh;
+out float vAlpha;
+out float vHighlight;
+out float vMix;
+
+void main() {
+  float u = aParticle.x;
+  float v = aParticle.y;
+  float rid = aParticle.z;
+  float seed = aParticle.w;
+
+  float t = uTime;
+  float aspect = uResolution.x / max(1.0, uResolution.y);
+
+  vec3 pos = vec3(0.0);
+  float twist = 0.0;
+  float edgeFade = 1.0;
+
+  if (rid < 2.5) {
+    // 3 sweeping 3D particle ribbons matching the diagonal & upper waves
+    float wavePhase = t * 0.55;
+
+    if (rid < 0.5) {
+      // Main diagonal ribbon: bottom-left -> right-center
+      float x = u * 1.18;
+      float yCurve = u * 0.42 + sin(u * 2.1 - wavePhase + 0.4) * 0.22 + cos(u * 1.15 + wavePhase * 0.6) * 0.09;
+      float zCurve = cos(u * 1.85 - wavePhase * 0.8) * 0.34;
+      twist = u * 2.65 + sin(u * 1.4 - wavePhase * 0.7) * 0.9;
+
+      float width = 0.34 + 0.08 * sin(u * 2.2 + wavePhase * 0.5);
+      pos = vec3(
+        x + sin(twist) * v * 0.08,
+        yCurve + cos(twist) * v * width,
+        zCurve + sin(twist) * v * width * 1.15
+      );
+      edgeFade = smoothstep(1.38, 0.82, abs(u));
+    } else if (rid < 1.5) {
+      // Upper sweeping ribbon with bright golden fold near top-right
+      float x = u * 1.18;
+      float yCurve = 0.40 + u * 0.14 + sin(u * 2.3 + wavePhase * 0.8 + 1.4) * 0.17;
+      float zCurve = -0.05 + sin(u * 1.7 + wavePhase * 0.65) * 0.32;
+      twist = u * 2.95 + 1.1 + cos(u * 1.3 + wavePhase * 0.5) * 0.8;
+
+      float width = 0.28 + 0.06 * cos(u * 2.0 - wavePhase * 0.4);
+      pos = vec3(
+        x,
+        yCurve + cos(twist) * v * width,
+        zCurve + sin(twist) * v * width * 1.1
+      );
+      edgeFade = smoothstep(1.38, 0.78, abs(u));
+    } else {
+      // Lower-right sweeping secondary ribbon
+      float x = 0.22 + u * 0.95;
+      float yCurve = -0.52 + u * 0.58 + sin(u * 2.0 - wavePhase * 0.7 + 2.5) * 0.14;
+      float zCurve = 0.18 + cos(u * 1.9 + wavePhase * 0.55) * 0.28;
+      twist = u * 2.2 - 0.6 + sin(u * 1.5 + wavePhase * 0.6) * 0.7;
+
+      float width = 0.26;
+      pos = vec3(
+        x,
+        yCurve + cos(twist) * v * width,
+        zCurve + sin(twist) * v * width
+      );
+      edgeFade = smoothstep(1.32, 0.72, abs(u));
+    }
+
+    // Subtle organic micro-shimmer per fiber strand
+    pos.y += sin(seed * 25.0 + t * 0.9 + u * 3.0) * 0.012;
+    pos.z += cos(seed * 19.0 + t * 0.8 + u * 2.5) * 0.012;
+
+    // Bright specular golden flare where ribbon twists edge-on to camera (fold crest)
+    float foldDensity = 1.0 - smoothstep(0.0, 0.42, abs(cos(twist)));
+    float crest = smoothstep(0.15, 0.95, sin(u * 2.2 - t * 0.4 + rid * 2.1) * 0.5 + 0.5);
+    vHighlight = pow(foldDensity, 1.8) * (0.45 + 0.55 * crest);
+  } else {
+    // Floating ambient bokeh dust particles
+    float driftX = fract(u * 0.5 + 0.5 + t * 0.012 * (0.4 + seed)) * 2.4 - 1.2;
+    float driftY = fract(v + 0.5 + sin(t * 0.2 + seed * 10.0) * 0.04) * 2.1 - 1.05;
+    float zDust = mix(-0.75, 0.75, fract(seed * 7.31));
+    pos = vec3(driftX, driftY, zDust);
+    vHighlight = 0.15;
+    edgeFade = 0.75;
+  }
+
+  // Subtle mouse parallax
+  vec2 m = (uMouse - 0.5) * 2.0;
+  pos.x += m.x * uMouseInfluence * 0.08 * (0.5 - pos.z);
+  pos.y += m.y * uMouseInfluence * 0.06 * (0.5 - pos.z);
+
+  // Keep aspect balanced
+  pos.x /= max(0.75, aspect * 0.62);
+
+  // Depth of Field calculation around focal plane z = 0.08
+  float focalDist = abs(pos.z - 0.08);
+  float dof = smoothstep(0.04, 0.62, focalDist);
+
+  float baseSize = (rid > 2.5) ? (3.5 + seed * 8.0) : mix(1.9, 11.5, dof);
+  gl_PointSize = clamp(baseSize * uDpr * (1.0 + vHighlight * 0.45), 1.4, 24.0);
+  gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+
+  vBokeh = dof;
+  vMix = fract(seed * 3.7 + v * 0.5 + 0.5);
+
+  float sharpAlpha = mix(0.68, 0.11, dof);
+  float ribbonFade = (rid > 2.5) ? (0.12 + 0.18 * (1.0 - dof)) : (sharpAlpha + vHighlight * 0.42);
+  float vEdge = (rid > 2.5) ? 1.0 : smoothstep(0.55, 0.18, abs(v));
+
+  vAlpha = clamp(ribbonFade * edgeFade * vEdge, 0.0, 0.92);
+}`;
+
+const FRAGMENT_SHADER = `#version 300 es
+precision highp float;
+
 uniform vec3 uGlowColor;
 uniform vec3 uSecondaryColor;
+uniform float uIntensity;
+
+in float vBokeh;
+in float vAlpha;
+in float vHighlight;
+in float vMix;
 
 out vec4 fragColor;
 
-float hash(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 45.32);
-  return fract(p.x * p.y);
-}
-
-float noise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  float a = hash(i);
-  float b = hash(i + vec2(1.0, 0.0));
-  float c = hash(i + vec2(0.0, 1.0));
-  float d = hash(i + vec2(1.0, 1.0));
-  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-}
-
-float fbm(vec2 p) {
-  float value = 0.0;
-  float amp = 0.5;
-  mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-  for (int i = 0; i < 4; i++) {
-    value += amp * noise(p);
-    p = rot * p * 2.02;
-    amp *= 0.5;
-  }
-  return value;
-}
-
-vec2 domainWarp(vec2 p, float t) {
-  vec2 q = vec2(
-    fbm(p * uNoiseScale + vec2(0.0, t * 0.14)),
-    fbm(p * uNoiseScale + vec2(5.2, 1.3) - vec2(t * 0.11, 0.0))
-  );
-  vec2 r = vec2(
-    fbm(p * uNoiseScale + 2.4 * q + vec2(1.7, 9.2) + t * 0.09),
-    fbm(p * uNoiseScale + 2.4 * q + vec2(8.3, 2.8) - t * 0.08)
-  );
-  return p + uWarpAmount * (r - 0.5);
-}
-
 void main() {
-  vec2 uv = gl_FragCoord.xy / uResolution.xy;
-  float aspect = uResolution.x / max(1.0, uResolution.y);
-  vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+  vec2 c = gl_PointCoord - 0.5;
+  float r = length(c) * 2.0;
+  if (r > 1.0) discard;
 
-  vec2 m = (uMouse - 0.5) * vec2(aspect, 1.0);
-  vec2 toMouse = p - m;
-  float dist = length(toMouse);
-  float push = exp(-dist * 2.8) * uMouseInfluence * 0.35;
-  p += normalize(toMouse + 0.0001) * push;
+  // Sharp dot when in focus -> soft circular bokeh disc when out of focus
+  float sharpDot = exp(-r * r * 4.2);
+  float bokehDisc = smoothstep(1.0, 0.45, r) * (0.55 + 0.45 * smoothstep(0.2, 0.85, r));
+  float shape = mix(sharpDot, bokehDisc, vBokeh);
 
-  float t = uTime;
-  vec2 wp = domainWarp(p, t);
+  vec3 baseGold = mix(uSecondaryColor, uGlowColor, vMix);
+  vec3 hotCore = vec3(1.0, 0.94, 0.72);
+  vec3 col = mix(baseGold, hotCore, clamp(vHighlight * 0.75, 0.0, 0.85));
 
-  float angle = atan(wp.y, wp.x);
-  float radius = length(wp);
-  float twist = radius * 1.65 - t * 0.22;
-  vec2 twisted = vec2(
-    cos(angle + twist) * radius,
-    sin(angle + twist) * radius
-  );
+  float finalAlpha = shape * vAlpha * uIntensity;
+  if (finalAlpha < 0.004) discard;
 
-  float fibers = 0.0;
-  float glow = 0.0;
-  int count = int(clamp(uFiberCount, 4.0, 32.0));
-
-  for (int i = 0; i < 32; i++) {
-    if (i >= count) break;
-    float fi = float(i) / max(1.0, uFiberCount);
-    float phase = fi * 6.2831853 + t * (0.28 + fi * 0.18);
-    float band = sin(twisted.x * (2.6 + fi * 3.1) + twisted.y * 1.9 + phase);
-    float wave = fbm(wp * (1.4 + fi * 0.7) + vec2(t * 0.1, -t * 0.08));
-    float d = abs(band + (wave - 0.5) * 1.8);
-
-    float line = smoothstep(0.14, 0.0, d) * (0.45 + 0.55 * sin(fi * 12.0 + t));
-    float soft = exp(-d * 4.5) * 0.22;
-
-    fibers += line * (1.0 - fi * 0.45);
-    glow += soft * (0.6 + 0.4 * sin(fi * 8.0 - t));
-  }
-
-  fibers /= max(1.0, uFiberCount * 0.22);
-  glow /= max(1.0, uFiberCount * 0.28);
-
-  vec3 baseDark = vec3(0.035, 0.03, 0.022);
-  vec3 col = baseDark;
-  col += uSecondaryColor * glow * uGlowAmount * 0.85;
-  col += uGlowColor * fibers * uIntensity;
-  col += mix(uSecondaryColor, uGlowColor, 0.5) * pow(max(0.0, glow), 1.4) * uGlowAmount * 0.65;
-
-  float vig = smoothstep(1.15, 0.25, length((uv - 0.5) * vec2(1.2, 1.0)));
-  col *= mix(1.0, vig, uVignette);
-
-  fragColor = vec4(col, 1.0);
+  fragColor = vec4(col, finalAlpha);
 }`;
 
 function hexToRgb(hex) {
-  const clean = String(hex || '#ffffff').replace('#', '');
+  const clean = String(hex || '#ffc204').replace('#', '');
   const full =
     clean.length === 3
       ? clean
@@ -138,18 +173,45 @@ function hexToRgb(hex) {
   ];
 }
 
+function buildParticleField() {
+  const pts = [];
+
+  // Deterministic pseudo-random helper
+  let s = 1337;
+  const rand = () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+
+  function addRibbon(ribbonId, cols, rows) {
+    for (let i = 0; i < cols; i++) {
+      const u = (i / (cols - 1)) * 2.7 - 1.35 + (rand() - 0.5) * 0.014;
+      for (let j = 0; j < rows; j++) {
+        const v = (j / (rows - 1)) - 0.5 + (rand() - 0.5) * 0.025;
+        pts.push(u, v, ribbonId, rand());
+      }
+    }
+  }
+
+  // 3 particle ribbons (~6,100 particles) + 140 floating bokeh dust particles
+  addRibbon(0, 135, 22);
+  addRibbon(1, 110, 18);
+  addRibbon(2, 90, 14);
+
+  for (let d = 0; d < 140; d++) {
+    pts.push(rand() * 2.4 - 1.2, rand() - 0.5, 3, rand());
+  }
+
+  return new Float32Array(pts);
+}
+
 export default function GhostFibers({
   glowColor = '#ffc204',
   secondaryColor = '#ffc610',
-  speed = 0.75,
-  intensity = 0.62,
+  speed = 0.55,
+  intensity = 0.78,
   mouseInfluence = 0.45,
   paused = false,
-  fiberCount = 18,
-  warpAmount = 0.8,
-  noiseScale = 1.6,
-  glowAmount = 0.58,
-  vignette = 0.82,
   enableMouse = true,
   className = '',
   style = {},
@@ -162,11 +224,6 @@ export default function GhostFibers({
     intensity,
     mouseInfluence,
     paused,
-    fiberCount,
-    warpAmount,
-    noiseScale,
-    glowAmount,
-    vignette,
     enableMouse,
   });
 
@@ -177,11 +234,6 @@ export default function GhostFibers({
     intensity,
     mouseInfluence,
     paused,
-    fiberCount,
-    warpAmount,
-    noiseScale,
-    glowAmount,
-    vignette,
     enableMouse,
   };
 
@@ -234,37 +286,35 @@ export default function GhostFibers({
       return () => canvas.remove();
     }
 
+    const fieldData = buildParticleField();
+    const totalPoints = fieldData.length / 4;
+
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-      gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ARRAY_BUFFER, fieldData, gl.STATIC_DRAW);
 
-    const posLoc = gl.getAttribLocation(program, 'position');
+    const posLoc = gl.getAttribLocation(program, 'aParticle');
     gl.enableVertexAttribArray(posLoc);
-    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(posLoc, 4, gl.FLOAT, false, 0, 0);
 
     const uniforms = {
       uResolution: gl.getUniformLocation(program, 'uResolution'),
       uTime: gl.getUniformLocation(program, 'uTime'),
       uMouse: gl.getUniformLocation(program, 'uMouse'),
       uMouseInfluence: gl.getUniformLocation(program, 'uMouseInfluence'),
-      uIntensity: gl.getUniformLocation(program, 'uIntensity'),
-      uFiberCount: gl.getUniformLocation(program, 'uFiberCount'),
-      uWarpAmount: gl.getUniformLocation(program, 'uWarpAmount'),
-      uNoiseScale: gl.getUniformLocation(program, 'uNoiseScale'),
-      uGlowAmount: gl.getUniformLocation(program, 'uGlowAmount'),
-      uVignette: gl.getUniformLocation(program, 'uVignette'),
+      uDpr: gl.getUniformLocation(program, 'uDpr'),
       uGlowColor: gl.getUniformLocation(program, 'uGlowColor'),
       uSecondaryColor: gl.getUniformLocation(program, 'uSecondaryColor'),
+      uIntensity: gl.getUniformLocation(program, 'uIntensity'),
     };
 
-    const mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.clearColor(0.035, 0.032, 0.025, 1.0); // #090806 deep dark charcoal
 
+    let dpr = 1;
     function updateSize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const w = Math.max(1, Math.floor(container.clientWidth * dpr));
       const h = Math.max(1, Math.floor(container.clientHeight * dpr));
       if (canvas.width !== w || canvas.height !== h) {
@@ -277,6 +327,8 @@ export default function GhostFibers({
     updateSize();
     const ro = new ResizeObserver(updateSize);
     ro.observe(container);
+
+    const mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
 
     function onMouseMove(e) {
       if (!propsRef.current.enableMouse) return;
@@ -308,27 +360,25 @@ export default function GhostFibers({
         simTime += dt * p.speed;
       }
 
-      mouse.x += (mouse.tx - mouse.x) * 0.06;
-      mouse.y += (mouse.ty - mouse.y) * 0.06;
+      mouse.x += (mouse.tx - mouse.x) * 0.05;
+      mouse.y += (mouse.ty - mouse.y) * 0.05;
 
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(program);
+
       gl.uniform2f(uniforms.uResolution, canvas.width, canvas.height);
       gl.uniform1f(uniforms.uTime, simTime);
       gl.uniform2f(uniforms.uMouse, mouse.x, mouse.y);
       gl.uniform1f(uniforms.uMouseInfluence, p.enableMouse ? p.mouseInfluence : 0.0);
+      gl.uniform1f(uniforms.uDpr, dpr);
       gl.uniform1f(uniforms.uIntensity, p.intensity);
-      gl.uniform1f(uniforms.uFiberCount, p.fiberCount);
-      gl.uniform1f(uniforms.uWarpAmount, p.warpAmount);
-      gl.uniform1f(uniforms.uNoiseScale, p.noiseScale);
-      gl.uniform1f(uniforms.uGlowAmount, p.glowAmount);
-      gl.uniform1f(uniforms.uVignette, p.vignette);
 
       const gc = hexToRgb(p.glowColor);
       const sc = hexToRgb(p.secondaryColor);
       gl.uniform3f(uniforms.uGlowColor, gc[0], gc[1], gc[2]);
       gl.uniform3f(uniforms.uSecondaryColor, sc[0], sc[1], sc[2]);
 
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.drawArrays(gl.POINTS, 0, totalPoints);
     }
 
     animId = requestAnimationFrame(render);
@@ -357,17 +407,18 @@ export default function GhostFibers({
         zIndex: 0,
         pointerEvents: 'none',
         overflow: 'hidden',
+        background: '#090806',
         ...style,
       }}
     >
-      {/* Subtle dark center vignette so Warm Cream & Gold text always stands out */}
+      {/* Subtle dark center vignette so foreground Warm Cream & Gold text always stands out */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
           background:
-            'radial-gradient(circle at 50% 50%, rgba(10, 9, 7, 0.42) 10%, rgba(10, 9, 7, 0.65) 85%)',
+            'radial-gradient(circle at 50% 50%, rgba(9, 8, 6, 0.32) 15%, rgba(9, 8, 6, 0.58) 85%)',
           zIndex: 1,
         }}
       />
