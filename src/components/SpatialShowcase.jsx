@@ -6,11 +6,11 @@ import ReviewForm from './ReviewForm';
 import OrderButton from './OrderButton';
 
 const ROOMS = [
-  { col: 0, row: 0, title: 'Quote', dir: 'Next ↓' },
-  { col: 0, row: 1, title: 'Craft', dir: '↓  |  Next →' },
-  { col: 1, row: 1, title: 'Signature', dir: 'Next ↓' },
-  { col: 1, row: 2, title: 'Testimonials', dir: 'Next ←' },
-  { col: 0, row: 2, title: 'Review', dir: 'Back ↑' },
+  { camCol: 0, camRow: 0, hudCol: 0, hudRow: 0, title: 'Quote', dir: 'Next ↓' },
+  { camCol: 0, camRow: 1, hudCol: 0, hudRow: 1, title: 'Craft', dir: '↓  |  Next →' },
+  { camCol: 1, camRow: 1, hudCol: 1, hudRow: 1, title: 'Signature', dir: 'Next ↓' },
+  { camCol: 1, camRow: 2, hudCol: 1, hudRow: 2, title: 'Testimonials', dir: 'Next ↓' },
+  { camCol: 1, camRow: 2, hudCol: 0, hudRow: 2, title: 'Review', dir: 'Back ↑' },
 ];
 
 const VIDEO_SECTIONS = [
@@ -68,6 +68,8 @@ export default function SpatialShowcase({ revealed }) {
   const busyTimerRef = useRef(null);
   const videoRef = useRef(null);
   const animFrameRef = useRef(null);
+  const playTokenRef = useRef(0);
+  const seekFallbackRef = useRef(null);
   const reviewPanelRef = useRef(null);
   const touchStartYRef = useRef(null);
   const touchTriggeredRef = useRef(false);
@@ -84,32 +86,31 @@ export default function SpatialShowcase({ revealed }) {
   }
 
   function playPartSmoothly(stepIdx) {
+    const token = ++playTokenRef.current;
     cancelAnimationFrame(animFrameRef.current);
+    clearTimeout(seekFallbackRef.current);
+
     const vid = videoRef.current;
-    if (!vid) {
-      isBusyRef.current = false;
-      return;
-    }
+    if (!vid) return;
 
     const runAfterMeta = () => {
+      if (token !== playTokenRef.current) return;
       const duration = vid.duration;
-      if (!duration || Number.isNaN(duration)) {
-        isBusyRef.current = false;
-        return;
-      }
+      if (!duration || Number.isNaN(duration)) return;
 
       const s = VIDEO_SECTIONS[stepIdx];
       const startTime = Math.max(0, s.startPct * duration);
       const endTime = Math.min(duration - 0.04, s.endPct * duration);
 
       vid.pause();
-      vid.style.opacity = '0.25';
+      vid.style.opacity = '0.3';
 
       let started = false;
       const onSeeked = () => {
-        if (started) return;
+        if (started || token !== playTokenRef.current) return;
         started = true;
         vid.removeEventListener('seeked', onSeeked);
+        clearTimeout(seekFallbackRef.current);
 
         vid.style.opacity = '0.96';
         vid.muted = true;
@@ -120,6 +121,7 @@ export default function SpatialShowcase({ revealed }) {
         vid.play().catch(() => {});
 
         function monitor() {
+          if (token !== playTokenRef.current) return;
           const cur = vid.currentTime;
           const progress = Math.max(0, Math.min(1, (cur - startTime) / span));
 
@@ -131,8 +133,6 @@ export default function SpatialShowcase({ revealed }) {
           if (cur >= endTime - 0.02 || progress >= 0.99 || vid.ended) {
             vid.pause();
             vid.playbackRate = 0.88;
-            clearTimeout(busyTimerRef.current);
-            isBusyRef.current = false;
             return;
           }
 
@@ -147,7 +147,7 @@ export default function SpatialShowcase({ revealed }) {
         onSeeked();
       } else {
         vid.currentTime = startTime;
-        setTimeout(onSeeked, 350);
+        seekFallbackRef.current = setTimeout(onSeeked, 300);
       }
     };
 
@@ -160,7 +160,8 @@ export default function SpatialShowcase({ revealed }) {
 
   function goToVideoStep(nextIdx) {
     if (nextIdx < 0 || nextIdx >= VIDEO_SECTIONS.length || nextIdx === videoStepRef.current) return;
-    setBusyFor(3200);
+    // Short debounce only so user can scroll to next scene before current one finishes
+    setBusyFor(260);
     setVideoStep(nextIdx);
     playPartSmoothly(nextIdx);
   }
@@ -172,13 +173,18 @@ export default function SpatialShowcase({ revealed }) {
     setActiveRoom(nextRoom);
 
     if (nextRoom === 1) {
-      setBusyFor(3200);
+      // Lock only during room slide, never waiting for full video clip
+      setBusyFor(700);
       const targetStep = prev === 0 ? 0 : videoStepRef.current;
       setVideoStep(targetStep);
-      setTimeout(() => playPartSmoothly(targetStep), 420);
+      setTimeout(() => {
+        if (activeRoomRef.current === 1) playPartSmoothly(targetStep);
+      }, 360);
     } else {
-      setBusyFor(950);
+      setBusyFor(850);
+      ++playTokenRef.current;
       cancelAnimationFrame(animFrameRef.current);
+      clearTimeout(seekFallbackRef.current);
       videoRef.current?.pause();
     }
   }
@@ -279,6 +285,7 @@ export default function SpatialShowcase({ revealed }) {
       window.removeEventListener('touchend', onTouchEnd, { capture: true });
       cancelAnimationFrame(animFrameRef.current);
       clearTimeout(busyTimerRef.current);
+      clearTimeout(seekFallbackRef.current);
     };
   }, []);
 
@@ -287,8 +294,55 @@ export default function SpatialShowcase({ revealed }) {
 
   const roomStyle = (idx) => {
     const r = ROOMS[idx];
-    const dx = (r.col - target.col) * 100;
-    const dy = (r.row - target.row) * 100;
+    const dx = (r.camCol - target.camCol) * 100;
+    const dy = (r.camRow - target.camRow) * 100;
+
+    // Depth-stacked Testimonials (idx 3) <-> Submit Review (idx 4)
+    if (idx === 3) {
+      const inBgBehindReview = activeRoom === 4;
+      const isVisible = activeRoom === 3 || activeRoom === 4 || prevRoomRef.current === 3;
+      return {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100dvh',
+        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${inBgBehindReview ? 0.82 : 1})`,
+        filter: inBgBehindReview ? 'blur(12px)' : 'blur(0px)',
+        opacity: inBgBehindReview ? 0.32 : 1,
+        visibility: isVisible ? 'visible' : 'hidden',
+        pointerEvents: activeRoom === 3 ? 'auto' : 'none',
+        transition:
+          'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), filter 0.85s ease, opacity 0.85s ease',
+        willChange: 'transform, filter, opacity',
+        zIndex: inBgBehindReview ? 11 : activeRoom === 3 ? 12 : 10,
+        background: 'transparent',
+      };
+    }
+
+    if (idx === 4) {
+      const isActive = activeRoom === 4;
+      const isVisible = isActive || prevRoomRef.current === 4;
+      // Zooms in + blurs out behind the screen when scrolling back up; blurs in to focus when active
+      return {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100dvh',
+        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${isActive ? 1 : 1.18})`,
+        filter: isActive ? 'blur(0px)' : 'blur(18px)',
+        opacity: isActive ? 1 : 0,
+        visibility: isVisible ? 'visible' : 'hidden',
+        pointerEvents: isActive ? 'auto' : 'none',
+        transition:
+          'transform 0.88s cubic-bezier(0.22, 1, 0.36, 1), filter 0.82s ease, opacity 0.78s ease',
+        willChange: 'transform, filter, opacity',
+        zIndex: 14,
+        background: 'transparent',
+      };
+    }
+
     const isVisible = idx === activeRoom || idx === prevRoomRef.current;
     return {
       position: 'fixed',
@@ -546,7 +600,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 2): Voices of our Regulars */}
+      {/* Room (1, 2) Background Layer: Voices of our Regulars (stays blurred behind Review) */}
       <section
         style={{
           ...roomStyle(3),
@@ -565,7 +619,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (0, 2): Submit Review */}
+      {/* Room (1, 2) Foreground Depth Layer: Submit Review (blurs in over Testimonials; zooms in & blurs out on scroll up) */}
       <section
         ref={reviewPanelRef}
         style={{
@@ -614,8 +668,8 @@ export default function SpatialShowcase({ revealed }) {
               title={r.title}
               onClick={() => !isBusyRef.current && goToRoom(idx)}
               style={{
-                gridColumn: r.col + 1,
-                gridRow: r.row + 1,
+                gridColumn: r.hudCol + 1,
+                gridRow: r.hudRow + 1,
                 width: '10px',
                 height: '10px',
                 borderRadius: '3px',
