@@ -216,7 +216,8 @@ export default function SpatialShowcase({ revealed }) {
   useEffect(() => {
     const isInteractive = (target) =>
       Boolean(
-        document.querySelector('.wf-modal-backdrop') ||
+        window.location.pathname !== '/' ||
+          document.querySelector('.wf-modal-backdrop') ||
           document.querySelector('.wf-bag-popover') ||
           target?.closest?.('textarea, input, button, a, .wf-navbar')
       );
