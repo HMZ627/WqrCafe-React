@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import OrderButton from './OrderButton';
 
 export default function CheckoutModal() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function CheckoutModal() {
   const [phone, setPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery (COD)');
   const [receiptFile, setReceiptFile] = useState(null);
-  const [saveDetails, setSaveDetails] = useState(false); // Unchecked by default
+  const [saveDetails, setSaveDetails] = useState(false);
   const [errors, setErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [jcInfo, setJcInfo] = useState({
@@ -310,9 +311,9 @@ export default function CheckoutModal() {
                   Save order details for future orders
                 </label>
 
-                <button type="submit" className="wf-btn-gold" style={{ width: '100%' }} disabled={submitting}>
+                <OrderButton type="submit" style={{ width: '100%' }} disabled={submitting}>
                   {submitting ? 'Sending Order Securely...' : 'Confirm Order'}
-                </button>
+                </OrderButton>
               </form>
             )}
           </motion.div>
