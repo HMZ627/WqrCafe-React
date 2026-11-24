@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import OrderButton from './OrderButton';
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -162,9 +163,7 @@ export default function Navbar() {
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      className="wf-btn-gold"
+                    <OrderButton
                       style={{ width: '100%' }}
                       onClick={() => {
                         setIsBagOpen(false);
@@ -172,7 +171,7 @@ export default function Navbar() {
                       }}
                     >
                       Order
-                    </button>
+                    </OrderButton>
                   </>
                 )}
               </motion.div>
