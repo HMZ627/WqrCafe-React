@@ -1,116 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useApp } from '../context/AppContext';
-
-export default function TestimonialsBox() {
-  const { reviews } = useApp();
-  const [activeIdx, setActiveIdx] = useState(0);
-  const timerRef = useRef(null);
-  const pauseTimerRef = useRef(null);
-  const wheelLockRef = useRef(false);
-  const touchStartYRef = useRef(null);
-  const touchHandledRef = useRef(false);
-
-  function startAuto() {
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setActiveIdx((prev) => (prev + 1) % reviews.length);
-    }, 3400);
-  }
-
-  function pauseAndResumeAuto(delay = 5500) {
-    clearInterval(timerRef.current);
-    clearTimeout(pauseTimerRef.current);
-    pauseTimerRef.current = setTimeout(() => {
-      startAuto();
-    }, delay);
-  }
-
-  useEffect(() => {
-    setActiveIdx(0);
-    startAuto();
-    return () => {
-      clearInterval(timerRef.current);
-      clearTimeout(pauseTimerRef.current);
-    };
-  }, [reviews.length]);
-
-  function step(dir) {
-    setActiveIdx((prev) => (prev + dir + reviews.length) % reviews.length);
-    pauseAndResumeAuto();
-  }
-
-  const cardStyleForPos = (pos) => {
-    const base = {
-      position: 'absolute',
-      left: '50%',
-      top: '50%',
-      width: '86%',
-      maxWidth: '580px',
-      padding: '1.3rem 1.6rem',
-      borderRadius: '18px',
-      background: 'linear-gradient(145deg, #1E1C17, #161512)',
-      border: '1px solid rgba(212, 175, 55, 0.2)',
-      transition: 'all 0.72s cubic-bezier(0.22, 1, 0.36, 1)',
-      cursor: 'pointer',
-    };
-
-    if (pos === 0) {
-      return {
-        ...base,
-        transform: 'translate(-50%, -50%) scale(1) rotateX(0deg)',
-        filter: 'blur(0px)',
-        opacity: 1,
-        zIndex: 5,
-        borderColor: '#D4AF37',
-        boxShadow: '0 18px 42px rgba(0,0,0,0.65), 0 0 24px rgba(212,175,55,0.18)',
-      };
-    }
-    if (pos === -1) {
-      return {
-        ...base,
-        transform: 'translate(-50%, -138%) scale(0.86) rotateX(18deg) skewX(-1.5deg)',
-        filter: 'blur(4px) contrast(0.9)',
-        opacity: 0.45,
-        zIndex: 3,
-      };
-    }
-    if (pos === 1) {
-      return {
-        ...base,
-        transform: 'translate(-50%, 38%) scale(0.86) rotateX(-18deg) skewX(1.5deg)',
-        filter: 'blur(4px) contrast(0.9)',
-        opacity: 0.45,
-        zIndex: 3,
-      };
-    }
-    if (pos === -2) {
-      return {
-        ...base,
-        transform: 'translate(-50%, -215%) scale(0.74) rotateX(28deg) skewX(-3deg)',
-        filter: 'blur(8px)',
-        opacity: 0.14,
-        zIndex: 1,
-      };
-    }
-    if (pos === 2) {
-      return {
-        ...base,
-        transform: 'translate(-50%, 115%) scale(0.74) rotateX(-28deg) skewX(3deg)',
-        filter: 'blur(8px)',
-        opacity: 0.14,
-        zIndex: 1,
-      };
-    }
-    return {
-      ...base,
-      transform: 'translate(-50%, 260%) scale(0.6)',
-      opacity: 0,
-      pointerEvents: 'none',
-      zIndex: 0,
-    };
-  };
-
-  return (
+return (
     <div
       id="wf-testi-box"
       onWheel={(e) => {
@@ -143,39 +31,17 @@ export default function TestimonialsBox() {
         margin: '0 auto',
         overflow: 'hidden',
         borderRadius: '24px',
-        background: 'radial-gradient(circle at 50% 50%, rgba(212,175,55,0.08), #141311 78%)',
-        border: '1px solid rgba(212,175,55,0.22)',
+        background: 'rgba(18, 17, 14, 0.58)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(212,175,55,0.28)',
         perspective: '900px',
         userSelect: 'none',
         cursor: 'ns-resize',
         touchAction: 'none',
+        WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
+        maskImage: 'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
       }}
     >
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '70px',
-          background: 'linear-gradient(180deg, #121212 10%, transparent 100%)',
-          zIndex: 10,
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '70px',
-          background: 'linear-gradient(0deg, #121212 10%, transparent 100%)',
-          zIndex: 10,
-          pointerEvents: 'none',
-        }}
-      />
-
       {reviews.map((rev, idx) => {
         const n = reviews.length;
         let diff = idx - activeIdx;
@@ -210,4 +76,3 @@ export default function TestimonialsBox() {
       })}
     </div>
   );
-}
