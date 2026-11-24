@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import TestimonialsBox from './TestimonialsBox';
 import ReviewForm from './ReviewForm';
+import OrderButton from './OrderButton';
 
 const ROOMS = [
   { col: 0, row: 0, title: 'Quote', dir: 'Next ↓' },
@@ -12,11 +13,10 @@ const ROOMS = [
   { col: 0, row: 2, title: 'Review', dir: 'Back ↑' },
 ];
 
-// Tightened scene windows with safe buffers so sections never bleed into each other
 const VIDEO_SECTIONS = [
   {
     startPct: 0.0,
-    endPct: 0.145, // Bun preparation in wheat field (00:00 - ~00:01.4)
+    endPct: 0.145,
     source: 'Sunlit Golden Wheat Fields',
     sub: 'Toasted Sesame Brioche Bun',
     body: 'Harvested from golden wheat fields and baked pillowy-soft with toasted sesame seeds, splitting open in warm millstone mist.',
@@ -24,7 +24,7 @@ const VIDEO_SECTIONS = [
   },
   {
     startPct: 0.205,
-    endPct: 0.275, // Garden soil & vegetables (around 00:02)
+    endPct: 0.275,
     source: 'Morning Dew Vegetable Farms',
     sub: 'Crisp Lettuce, Vine Tomatoes & Red Onions',
     body: 'Dew-fresh emerald lettuce, sun-ripened tomato slices, and sharp purple onion rings cascading straight from fertile garden soil.',
@@ -32,7 +32,7 @@ const VIDEO_SECTIONS = [
   },
   {
     startPct: 0.335,
-    endPct: 0.465, // Cow pastures, milk splash & double cheddar (00:03 - 00:04)
+    endPct: 0.465,
     source: 'Lush Green Dairy Pastures',
     sub: 'Creamy Double Cheddar & Crisp Pickles',
     body: 'Wholesome pasture milk churned into two rich, velvety cheddar slices, layered generously over tangy dill pickles and greens.',
@@ -40,7 +40,7 @@ const VIDEO_SECTIONS = [
   },
   {
     startPct: 0.525,
-    endPct: 0.665, // Twilight open-flame grill & double patties (00:05 - 00:06)
+    endPct: 0.665,
     source: 'Twilight Wood-Fired Grill',
     sub: 'Double Charcoal-Seared Beef Patties',
     body: 'Two thick, hand-pressed beef patties seared at dusk over roaring hardwood flames—locking in smoky char and sizzling juices.',
@@ -48,7 +48,7 @@ const VIDEO_SECTIONS = [
   },
   {
     startPct: 0.735,
-    endPct: 0.985, // Spice burst into final Tower Burger in darkness (00:07 - 00:09)
+    endPct: 0.985,
     source: 'Waqar Foodies — After Darkness',
     sub: 'The Signature Double Tower Burger',
     body: 'Crowned with crushed peppercorns, signature house burger sauce, and warm golden bokeh—crafted to come alive after darkness.',
@@ -123,7 +123,6 @@ export default function SpatialShowcase({ revealed }) {
           const cur = vid.currentTime;
           const progress = Math.max(0, Math.min(1, (cur - startTime) / span));
 
-          // Single clean deceleration step avoids browser decoder stutters
           if (!slowedDown && progress >= 0.65) {
             slowedDown = true;
             vid.playbackRate = 0.52;
@@ -285,7 +284,6 @@ export default function SpatialShowcase({ revealed }) {
   const target = ROOMS[activeRoom];
   const currentSec = VIDEO_SECTIONS[videoStep];
 
-  // Only active & leaving rooms stay visible while sliding; far rooms stay hidden for 0 GPU cost
   const roomStyle = (idx) => {
     const r = ROOMS[idx];
     const dx = (r.col - target.col) * 100;
@@ -486,7 +484,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 1): Order Now Spotlight */}
+      {/* Room (1, 1): Signatures Spotlight */}
       <section
         style={{
           ...roomStyle(2),
@@ -501,34 +499,53 @@ export default function SpatialShowcase({ revealed }) {
           <h2 className="wf-section-title">
             Crafted For <span>Tonight</span>
           </h2>
-          <p className="wf-section-sub">
-            Freshly seared over live charcoal and delivered piping hot after sundown.
+          <p className="wf-section-sub" style={{ lineHeight: 1.6 }}>
+            Freshly seared over fire and delivered piping hot after sundown, just for{' '}
+            <span
+              style={{
+                fontFamily: "'Great Vibes', cursive",
+                fontSize: 'clamp(1.75rem, 2.8vw, 2.35rem)',
+                color: 'var(--wf-gold-bright)',
+                paddingLeft: '4px',
+                verticalAlign: 'middle',
+              }}
+            >
+              You
+            </span>
           </p>
 
           <div className="wf-menu-grid" style={{ textAlign: 'left', marginBottom: '1.8rem' }}>
             <div className="wf-card">
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.45rem', fontWeight: 700 }}>Tower Burger</div>
-              <div style={{ color: 'var(--wf-gold-bright)', fontWeight: 700, margin: '0.25rem 0 0.5rem 0' }}>500/- PKR</div>
-              <div style={{ color: 'var(--wf-cream-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-                Double flame-kissed beef patties, aged cheddar melt, garden greens, and house burger sauce on sesame brioche.
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.45rem', fontWeight: 700 }}>
+                Tower Burger
+              </div>
+              <div style={{ color: 'var(--wf-gold-bright)', fontWeight: 700, margin: '0.25rem 0 0.5rem 0' }}>
+                500/- PKR
+              </div>
+              <div style={{ color: 'var(--wf-cream-muted)', fontSize: '0.9rem', lineHeight: 1.55 }}>
+                Two fire-charred prime patties stacked high with double melted cheddar, crisp garden greens, vine tomatoes, tangy pickles, and house sauce inside toasted sesame brioche.
               </div>
             </div>
             <div className="wf-card">
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.45rem', fontWeight: 700 }}>Chicken Paratha Roll</div>
-              <div style={{ color: 'var(--wf-gold-bright)', fontWeight: 700, margin: '0.25rem 0 0.5rem 0' }}>350/- PKR</div>
-              <div style={{ color: 'var(--wf-cream-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.45rem', fontWeight: 700 }}>
+                Chicken Paratha Roll
+              </div>
+              <div style={{ color: 'var(--wf-gold-bright)', fontWeight: 700, margin: '0.25rem 0 0.5rem 0' }}>
+                350/- PKR
+              </div>
+              <div style={{ color: 'var(--wf-cream-muted)', fontSize: '0.9rem', lineHeight: 1.55 }}>
                 Crispy golden paratha layered with chargrilled chicken tikka, red onions, and signature mint-garlic crema.
               </div>
             </div>
           </div>
 
-          <button type="button" className="wf-btn-gold" style={{ minWidth: '220px' }} onClick={() => navigate('/menu')}>
+          <OrderButton style={{ minWidth: '220px' }} onClick={() => navigate('/menu')}>
             Order Now
-          </button>
+          </OrderButton>
         </div>
       </section>
 
-      {/* Room (1, 2): Testimonials */}
+      {/* Room (1, 2): Voices of our Regulars */}
       <section
         style={{
           ...roomStyle(3),
@@ -540,10 +557,9 @@ export default function SpatialShowcase({ revealed }) {
         }}
       >
         <div style={{ width: '100%', maxWidth: '780px' }}>
-          <h2 className="wf-section-title">
-            Voices After <span>Darkness</span>
+          <h2 className="wf-section-title" style={{ marginBottom: '1.5rem' }}>
+            Voices of our <span>Regulars</span>
           </h2>
-          <p className="wf-section-sub">Swipe inside to browse reviews, or outside to continue.</p>
           <TestimonialsBox />
         </div>
       </section>
