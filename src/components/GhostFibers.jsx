@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 
 export default function GhostFibers({
-  lineColor = '#D4AF37',
-  glowColor = '#7A5612',
-  secondaryColor = '#4A340B',
+  lineColor = '#181205',
+  glowColor = '#ffc204',
+  secondaryColor = '#ffc610',
   backgroundColor = '#0B0A08',
   speed = 0.42,
-  opacity = 0.78,
+  opacity = 0.82,
 }) {
   const canvasRef = useRef(null);
 
@@ -19,7 +19,6 @@ export default function GhostFibers({
     let height = 0;
 
     function resize() {
-      // 1x scale for ambient background is visually identical and 4x faster on GPU/CPU
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
@@ -29,11 +28,10 @@ export default function GhostFibers({
     resize();
     window.addEventListener('resize', resize);
 
-    // 3 sleek ribbons (24 strands total) with multi-pass soft alpha instead of expensive ctx.filter
     const ribbons = [
-      { fibers: 7, alpha: 0.22, amp: 0.16, freq: 1.4, phase: 0.2, yBase: 0.34, color: secondaryColor, lw: 1.2 },
-      { fibers: 10, alpha: 0.34, amp: 0.2, freq: 1.85, phase: 2.2, yBase: 0.52, color: lineColor, lw: 1.0 },
-      { fibers: 7, alpha: 0.24, amp: 0.17, freq: 1.5, phase: 4.1, yBase: 0.7, color: glowColor, lw: 1.15 },
+      { fibers: 7, alpha: 0.24, amp: 0.16, freq: 1.4, phase: 0.2, yBase: 0.32, glow: glowColor },
+      { fibers: 10, alpha: 0.30, amp: 0.21, freq: 1.85, phase: 2.1, yBase: 0.52, glow: secondaryColor },
+      { fibers: 7, alpha: 0.22, amp: 0.17, freq: 1.5, phase: 4.0, yBase: 0.72, glow: glowColor },
     ];
 
     const startTime = performance.now();
@@ -42,8 +40,6 @@ export default function GhostFibers({
 
     function draw(now) {
       animId = requestAnimationFrame(draw);
-
-      // Throttle subtly to ~36fps for buttery motion with minimal CPU load
       if (now - lastFrame < 26) return;
       lastFrame = now;
 
@@ -53,8 +49,6 @@ export default function GhostFibers({
       ctx.globalAlpha = 1;
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, width, height);
-
-      ctx.globalCompositeOperation = 'lighter';
 
       for (let rIdx = 0; rIdx < ribbons.length; rIdx++) {
         const rib = ribbons[rIdx];
@@ -76,16 +70,22 @@ export default function GhostFibers({
             else ctx.lineTo(x, y);
           }
 
-          // Outer soft glow pass (no CPU blur filter needed)
-          ctx.strokeStyle = glowColor;
-          ctx.globalAlpha = rib.alpha * 0.18 * opacity;
-          ctx.lineWidth = rib.lw * 7;
+          // Pass 1: #ffc204 / #ffc610 golden atmospheric glow
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = rib.glow;
+          ctx.globalAlpha = rib.alpha * 0.12 * opacity;
+          ctx.lineWidth = 10;
           ctx.stroke();
 
-          // Luminous fiber core
-          ctx.strokeStyle = rib.color;
-          ctx.globalAlpha = rib.alpha * (1 - Math.abs(normF) * 0.5) * opacity;
-          ctx.lineWidth = rib.lw;
+          ctx.globalAlpha = rib.alpha * 0.24 * opacity;
+          ctx.lineWidth = 3.2;
+          ctx.stroke();
+
+          // Pass 2: Dark ghost fiber core weaving inside the golden glow
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = lineColor;
+          ctx.globalAlpha = 0.68;
+          ctx.lineWidth = 1.25;
           ctx.stroke();
         }
       }
@@ -111,17 +111,14 @@ export default function GhostFibers({
         pointerEvents: 'none',
       }}
     >
-      <canvas
-        ref={canvasRef}
-        style={{ width: '100%', height: '100%', display: 'block' }}
-      />
-      {/* Static GPU vignette overlay (zero per-frame canvas cost) */}
+      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+      {/* Soft dark readability vignette so cream & gold foreground text stays razor sharp */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           background:
-            'radial-gradient(circle at 50% 50%, rgba(11,10,8,0.28) 15%, rgba(11,10,8,0.82) 85%)',
+            'radial-gradient(circle at 50% 50%, rgba(11,10,8,0.42) 15%, rgba(11,10,8,0.86) 85%)',
         }}
       />
     </div>
