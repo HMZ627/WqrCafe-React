@@ -5,61 +5,59 @@ export default function GhostFibers({
   glowColor = '#7A5612',
   secondaryColor = '#4A340B',
   backgroundColor = '#0B0A08',
-  speed = 0.45,
-  opacity = 0.72,
+  speed = 0.42,
+  opacity = 0.78,
 }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     let animId = null;
     let width = 0;
     let height = 0;
-    let dpr = 1;
 
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // 1x scale for ambient background is visually identical and 4x faster on GPU/CPU
       width = window.innerWidth;
       height = window.innerHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.width = width;
+      canvas.height = height;
     }
 
     resize();
     window.addEventListener('resize', resize);
 
-    // 5 layered depth-of-field ribbons, each made of fine glowing fibers
+    // 3 sleek ribbons (24 strands total) with multi-pass soft alpha instead of expensive ctx.filter
     const ribbons = [
-      { fibers: 12, blur: 6, alpha: 0.16, amp: 0.16, freq: 1.4, phase: 0.0, yBase: 0.28, color: secondaryColor, lw: 1.4 },
-      { fibers: 15, blur: 3, alpha: 0.24, amp: 0.19, freq: 1.7, phase: 1.5, yBase: 0.46, color: glowColor, lw: 1.2 },
-      { fibers: 18, blur: 0, alpha: 0.34, amp: 0.21, freq: 2.0, phase: 2.8, yBase: 0.54, color: lineColor, lw: 0.95 },
-      { fibers: 14, blur: 2, alpha: 0.22, amp: 0.17, freq: 1.6, phase: 4.1, yBase: 0.68, color: glowColor, lw: 1.15 },
-      { fibers: 10, blur: 7, alpha: 0.14, amp: 0.15, freq: 1.2, phase: 5.2, yBase: 0.78, color: secondaryColor, lw: 1.6 },
+      { fibers: 7, alpha: 0.22, amp: 0.16, freq: 1.4, phase: 0.2, yBase: 0.34, color: secondaryColor, lw: 1.2 },
+      { fibers: 10, alpha: 0.34, amp: 0.2, freq: 1.85, phase: 2.2, yBase: 0.52, color: lineColor, lw: 1.0 },
+      { fibers: 7, alpha: 0.24, amp: 0.17, freq: 1.5, phase: 4.1, yBase: 0.7, color: glowColor, lw: 1.15 },
     ];
 
     const startTime = performance.now();
+    let lastFrame = 0;
+    const steps = 36;
 
     function draw(now) {
+      animId = requestAnimationFrame(draw);
+
+      // Throttle subtly to ~36fps for buttery motion with minimal CPU load
+      if (now - lastFrame < 26) return;
+      lastFrame = now;
+
       const t = ((now - startTime) / 1000) * speed;
 
       ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, width, height);
 
       ctx.globalCompositeOperation = 'lighter';
-      const steps = 64;
 
       for (let rIdx = 0; rIdx < ribbons.length; rIdx++) {
         const rib = ribbons[rIdx];
-        ctx.save();
-        if (rib.blur > 0) {
-          ctx.filter = `blur(${rib.blur}px)`;
-        }
 
         for (let f = 0; f < rib.fibers; f++) {
           const normF = f / Math.max(1, rib.fibers - 1) - 0.5;
@@ -69,49 +67,28 @@ export default function GhostFibers({
           for (let s = 0; s <= steps; s++) {
             const u = s / steps;
             const x = u * width;
-
-            // Twisting, folding harmonic drift
-            const twist = Math.sin(u * Math.PI * rib.freq + t * 0.9 + rib.phase) * (normF * 78);
-            const fold = Math.cos(u * Math.PI * 1.35 - t * 0.65 + fiberPhase) * (height * rib.amp * 0.55);
-            const drift = Math.sin(u * Math.PI * 2.7 + t * 1.15 + normF * 1.8) * 28;
+            const twist = Math.sin(u * Math.PI * rib.freq + t * 0.85 + rib.phase) * (normF * 74);
+            const fold = Math.cos(u * Math.PI * 1.35 - t * 0.6 + fiberPhase) * (height * rib.amp * 0.54);
+            const drift = Math.sin(u * Math.PI * 2.5 + t * 1.05 + normF * 1.7) * 24;
             const y = height * rib.yBase + twist + fold + drift;
 
             if (s === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
 
-          // Broad atmospheric fiber glow
+          // Outer soft glow pass (no CPU blur filter needed)
           ctx.strokeStyle = glowColor;
-          ctx.globalAlpha = rib.alpha * 0.35 * opacity;
-          ctx.lineWidth = rib.lw * 4.2;
+          ctx.globalAlpha = rib.alpha * 0.18 * opacity;
+          ctx.lineWidth = rib.lw * 7;
           ctx.stroke();
 
-          // Fine luminous fiber core
+          // Luminous fiber core
           ctx.strokeStyle = rib.color;
-          ctx.globalAlpha = rib.alpha * (1 - Math.abs(normF) * 0.55) * opacity;
+          ctx.globalAlpha = rib.alpha * (1 - Math.abs(normF) * 0.5) * opacity;
           ctx.lineWidth = rib.lw;
           ctx.stroke();
         }
-        ctx.restore();
       }
-
-      // Soft dark vignette so foreground cream & gold text always pops cleanly
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = 1;
-      const vig = ctx.createRadialGradient(
-        width * 0.5,
-        height * 0.5,
-        Math.min(width, height) * 0.14,
-        width * 0.5,
-        height * 0.5,
-        Math.max(width, height) * 0.78
-      );
-      vig.addColorStop(0, 'rgba(11, 10, 8, 0.38)');
-      vig.addColorStop(1, 'rgba(11, 10, 8, 0.84)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, width, height);
-
-      animId = requestAnimationFrame(draw);
     }
 
     animId = requestAnimationFrame(draw);
@@ -123,8 +100,7 @@ export default function GhostFibers({
   }, [lineColor, glowColor, secondaryColor, backgroundColor, speed, opacity]);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
       aria-hidden="true"
       style={{
         position: 'fixed',
@@ -134,6 +110,20 @@ export default function GhostFibers({
         zIndex: 0,
         pointerEvents: 'none',
       }}
-    />
+    >
+      <canvas
+        ref={canvasRef}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      />
+      {/* Static GPU vignette overlay (zero per-frame canvas cost) */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'radial-gradient(circle at 50% 50%, rgba(11,10,8,0.28) 15%, rgba(11,10,8,0.82) 85%)',
+        }}
+      />
+    </div>
   );
 }
