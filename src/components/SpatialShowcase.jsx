@@ -12,46 +12,47 @@ const ROOMS = [
   { col: 0, row: 2, title: 'Review', dir: 'Back ↑' },
 ];
 
+// Tightened scene windows with safe buffers so sections never bleed into each other
 const VIDEO_SECTIONS = [
   {
     startPct: 0.0,
-    endPct: 0.165,
+    endPct: 0.145, // Bun preparation in wheat field (00:00 - ~00:01.4)
     source: 'Sunlit Golden Wheat Fields',
     sub: 'Toasted Sesame Brioche Bun',
     body: 'Harvested from golden wheat fields and baked pillowy-soft with toasted sesame seeds, splitting open in warm millstone mist.',
-    bg: 'radial-gradient(circle at 50% 48%, #4F3814 0%, #17130D 65%, #0D0C0A 100%)',
+    bg: 'radial-gradient(circle at 50% 48%, rgba(79, 56, 20, 0.82) 0%, rgba(20, 17, 12, 0.88) 65%, rgba(11, 10, 8, 0.92) 100%)',
   },
   {
-    startPct: 0.185,
-    endPct: 0.295,
+    startPct: 0.205,
+    endPct: 0.275, // Garden soil & vegetables (around 00:02)
     source: 'Morning Dew Vegetable Farms',
     sub: 'Crisp Lettuce, Vine Tomatoes & Red Onions',
     body: 'Dew-fresh emerald lettuce, sun-ripened tomato slices, and sharp purple onion rings cascading straight from fertile garden soil.',
-    bg: 'radial-gradient(circle at 50% 48%, #153D23 0%, #0E1711 65%, #0B0E0C 100%)',
+    bg: 'radial-gradient(circle at 50% 48%, rgba(21, 61, 35, 0.82) 0%, rgba(13, 21, 16, 0.88) 65%, rgba(10, 12, 11, 0.92) 100%)',
   },
   {
-    startPct: 0.315,
-    endPct: 0.48,
+    startPct: 0.335,
+    endPct: 0.465, // Cow pastures, milk splash & double cheddar (00:03 - 00:04)
     source: 'Lush Green Dairy Pastures',
     sub: 'Creamy Double Cheddar & Crisp Pickles',
     body: 'Wholesome pasture milk churned into two rich, velvety cheddar slices, layered generously over tangy dill pickles and greens.',
-    bg: 'radial-gradient(circle at 50% 48%, #2E3F19 0%, #15170F 65%, #0C0D0A 100%)',
+    bg: 'radial-gradient(circle at 50% 48%, rgba(46, 63, 25, 0.82) 0%, rgba(19, 21, 14, 0.88) 65%, rgba(11, 12, 9, 0.92) 100%)',
   },
   {
-    startPct: 0.505,
-    endPct: 0.685,
+    startPct: 0.525,
+    endPct: 0.665, // Twilight open-flame grill & double patties (00:05 - 00:06)
     source: 'Twilight Wood-Fired Grill',
     sub: 'Double Charcoal-Seared Beef Patties',
     body: 'Two thick, hand-pressed beef patties seared at dusk over roaring hardwood flames—locking in smoky char and sizzling juices.',
-    bg: 'radial-gradient(circle at 50% 48%, #521A0E 0%, #180E0D 65%, #0D0A0A 100%)',
+    bg: 'radial-gradient(circle at 50% 48%, rgba(82, 26, 14, 0.82) 0%, rgba(22, 13, 12, 0.88) 65%, rgba(12, 9, 9, 0.92) 100%)',
   },
   {
-    startPct: 0.715,
-    endPct: 0.985,
+    startPct: 0.735,
+    endPct: 0.985, // Spice burst into final Tower Burger in darkness (00:07 - 00:09)
     source: 'Waqar Foodies — After Darkness',
     sub: 'The Signature Double Tower Burger',
     body: 'Crowned with crushed peppercorns, signature house burger sauce, and warm golden bokeh—crafted to come alive after darkness.',
-    bg: 'radial-gradient(circle at 50% 48%, #36240B 0%, #12100D 65%, #0A0A09 100%)',
+    bg: 'radial-gradient(circle at 50% 48%, rgba(54, 36, 11, 0.82) 0%, rgba(17, 15, 12, 0.88) 65%, rgba(10, 10, 9, 0.92) 100%)',
   },
 ];
 
@@ -63,6 +64,7 @@ export default function SpatialShowcase({ revealed }) {
   const activeRoomRef = useRef(0);
   const videoStepRef = useRef(0);
   const isBusyRef = useRef(false);
+  const busyTimerRef = useRef(null);
   const videoRef = useRef(null);
   const animFrameRef = useRef(null);
   const reviewPanelRef = useRef(null);
@@ -72,7 +74,15 @@ export default function SpatialShowcase({ revealed }) {
   activeRoomRef.current = activeRoom;
   videoStepRef.current = videoStep;
 
-  function playPartWithSlowEaseOut(stepIdx) {
+  function setBusyFor(ms) {
+    clearTimeout(busyTimerRef.current);
+    isBusyRef.current = true;
+    busyTimerRef.current = setTimeout(() => {
+      isBusyRef.current = false;
+    }, ms);
+  }
+
+  function playPartSmoothly(stepIdx) {
     cancelAnimationFrame(animFrameRef.current);
     const vid = videoRef.current;
     if (!vid) {
@@ -80,7 +90,7 @@ export default function SpatialShowcase({ revealed }) {
       return;
     }
 
-    const startPlayback = () => {
+    const runAfterMeta = () => {
       const duration = vid.duration;
       if (!duration || Number.isNaN(duration)) {
         isBusyRef.current = false;
@@ -90,81 +100,85 @@ export default function SpatialShowcase({ revealed }) {
       const s = VIDEO_SECTIONS[stepIdx];
       const startTime = Math.max(0, s.startPct * duration);
       const endTime = Math.min(duration - 0.04, s.endPct * duration);
-      const span = Math.max(0.2, endTime - startTime);
+      const span = Math.max(0.15, endTime - startTime);
 
-      vid.style.opacity = '0.28';
       vid.pause();
-      vid.currentTime = startTime;
+      vid.style.opacity = '0.25';
 
-      setTimeout(() => {
+      let started = false;
+      const onSeeked = () => {
+        if (started) return;
+        started = true;
+        vid.removeEventListener('seeked', onSeeked);
+
         vid.style.opacity = '0.96';
         vid.muted = true;
-        vid.playbackRate = 0.85;
+        vid.playbackRate = 0.88;
+        let slowedDown = false;
+
         vid.play().catch(() => {});
 
-        let lastRateTick = performance.now();
-
-        function monitor(now) {
+        function monitor() {
           const cur = vid.currentTime;
           const progress = Math.max(0, Math.min(1, (cur - startTime) / span));
 
-          if (cur >= endTime - 0.015 || progress >= 0.995 || vid.ended) {
-            vid.pause();
-            vid.currentTime = endTime;
-            vid.playbackRate = 0.85;
-            isBusyRef.current = false;
-            return;
+          // Single clean deceleration step avoids decoder buffer stutters
+          if (!slowedDown && progress >= 0.65) {
+            slowedDown = true;
+            vid.playbackRate = 0.52;
           }
 
-          if (progress >= 0.55 && now - lastRateTick >= 95) {
-            const tail = (progress - 0.55) / 0.45;
-            vid.playbackRate = Math.max(0.16, 0.85 * Math.pow(1 - tail, 1.45));
-            lastRateTick = now;
+          if (cur >= endTime - 0.02 || progress >= 0.99 || vid.ended) {
+            vid.pause();
+            vid.playbackRate = 0.88;
+            clearTimeout(busyTimerRef.current);
+            isBusyRef.current = false;
+            return;
           }
 
           animFrameRef.current = requestAnimationFrame(monitor);
         }
 
         animFrameRef.current = requestAnimationFrame(monitor);
-      }, 110);
+      };
+
+      vid.addEventListener('seeked', onSeeked);
+      if (Math.abs(vid.currentTime - startTime) < 0.03) {
+        onSeeked();
+      } else {
+        vid.currentTime = startTime;
+        setTimeout(onSeeked, 350);
+      }
     };
 
     if (vid.readyState >= 1 && vid.duration) {
-      startPlayback();
+      runAfterMeta();
     } else {
-      vid.addEventListener('loadedmetadata', startPlayback, { once: true });
+      vid.addEventListener('loadedmetadata', runAfterMeta, { once: true });
     }
   }
 
   function goToVideoStep(nextIdx) {
     if (nextIdx < 0 || nextIdx >= VIDEO_SECTIONS.length || nextIdx === videoStepRef.current) return;
-    isBusyRef.current = true;
+    setBusyFor(3200);
     setVideoStep(nextIdx);
-    playPartWithSlowEaseOut(nextIdx);
-    setTimeout(() => {
-      isBusyRef.current = false;
-    }, 3400);
+    playPartSmoothly(nextIdx);
   }
 
   function goToRoom(nextRoom) {
     if (nextRoom < 0 || nextRoom >= ROOMS.length || nextRoom === activeRoomRef.current) return;
-    isBusyRef.current = true;
     const prev = activeRoomRef.current;
     setActiveRoom(nextRoom);
 
     if (nextRoom === 1) {
+      setBusyFor(3200);
       const targetStep = prev === 0 ? 0 : videoStepRef.current;
       setVideoStep(targetStep);
-      setTimeout(() => playPartWithSlowEaseOut(targetStep), 420);
-      setTimeout(() => {
-        isBusyRef.current = false;
-      }, 3400);
+      setTimeout(() => playPartSmoothly(targetStep), 420);
     } else {
+      setBusyFor(950);
       cancelAnimationFrame(animFrameRef.current);
       videoRef.current?.pause();
-      setTimeout(() => {
-        isBusyRef.current = false;
-      }, 950);
     }
   }
 
@@ -262,12 +276,14 @@ export default function SpatialShowcase({ revealed }) {
       window.removeEventListener('touchmove', onTouchMove, { capture: true });
       window.removeEventListener('touchend', onTouchEnd, { capture: true });
       cancelAnimationFrame(animFrameRef.current);
+      clearTimeout(busyTimerRef.current);
     };
   }, []);
 
   const target = ROOMS[activeRoom];
   const currentSec = VIDEO_SECTIONS[videoStep];
 
+  // Keep opacity: 1 so the departing room physically slides out instead of vanishing suddenly
   const roomStyle = (idx) => {
     const r = ROOMS[idx];
     const dx = (r.col - target.col) * 100;
@@ -279,15 +295,16 @@ export default function SpatialShowcase({ revealed }) {
       width: '100vw',
       height: '100dvh',
       transform: `translate3d(${dx}vw, ${dy}dvh, 0)`,
-      opacity: idx === activeRoom ? 1 : 0,
+      opacity: 1,
       pointerEvents: idx === activeRoom ? 'auto' : 'none',
-      transition: 'transform 0.95s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.75s ease',
-      zIndex: 10,
+      transition: 'transform 0.95s cubic-bezier(0.65, 0, 0.35, 1)',
+      zIndex: idx === activeRoom ? 12 : 10,
+      background: 'transparent',
     };
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: '#121212' }}>
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: 'transparent' }}>
       {/* Room (0, 0): Sleek Curvy Quote */}
       <section
         style={{
@@ -297,7 +314,6 @@ export default function SpatialShowcase({ revealed }) {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '96px 24px 54px 24px',
-          background: 'radial-gradient(circle at 50% 42%, #1D1A14 0%, #121212 72%)',
         }}
       >
         <motion.div
@@ -314,32 +330,33 @@ export default function SpatialShowcase({ revealed }) {
             style={{
               margin: 0,
               padding: '2.2rem 2.4rem 1.8rem 2.4rem',
-              borderTop: '1px solid rgba(212,175,55,0.35)',
-              borderBottom: '1px solid rgba(212,175,55,0.35)',
-              background: 'radial-gradient(circle at 50% 50%, rgba(212,175,55,0.06), transparent 72%)',
+              borderTop: '1px solid rgba(212,175,55,0.4)',
+              borderBottom: '1px solid rgba(212,175,55,0.4)',
+              background: 'radial-gradient(circle at 50% 50%, rgba(12,11,9,0.72), rgba(12,11,9,0.25) 75%)',
+              borderRadius: '18px',
             }}
           >
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.55)', display: 'block', textAlign: 'left', lineHeight: 0.45, marginBottom: '0.7rem' }}>
+            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.65)', display: 'block', textAlign: 'left', lineHeight: 0.45, marginBottom: '0.7rem' }}>
               “
             </span>
             <h1 style={{ margin: 0, lineHeight: 1.25, fontWeight: 400 }}>
-              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.3rem, 7.2vw, 6.2rem)', color: '#D4AF37', textShadow: '0 4px 28px rgba(212,175,55,0.38)', paddingRight: '6px' }}>
+              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.3rem, 7.2vw, 6.2rem)', color: '#F0CA5A', textShadow: '0 4px 28px rgba(0,0,0,0.85)', paddingRight: '6px' }}>
                 Flavour
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#E6DAC8' }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
                 , that comes{' '}
               </span>
-              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.3rem, 4.6vw, 3.8rem)', color: '#F5EFE6' }}>
+              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.3rem, 4.6vw, 3.8rem)', color: '#FFFDF8' }}>
                 Alive{' '}
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#E6DAC8' }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
                 After{' '}
               </span>
               <span
                 style={{
                   fontFamily: "'Great Vibes', cursive",
                   fontSize: 'clamp(3.2rem, 7vw, 6rem)',
-                  background: 'linear-gradient(180deg, #FFF5DC 0%, #D4AF37 58%, #9A7418 100%)',
+                  background: 'linear-gradient(180deg, #FFF5DC 0%, #F0CA5A 58%, #B88E24 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   padding: '0 6px',
@@ -348,14 +365,14 @@ export default function SpatialShowcase({ revealed }) {
                 Darkness
               </span>
             </h1>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.55)', display: 'block', textAlign: 'right', lineHeight: 0.45, marginTop: '0.7rem' }}>
+            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.65)', display: 'block', textAlign: 'right', lineHeight: 0.45, marginTop: '0.7rem' }}>
               ”
             </span>
-            <div style={{ marginTop: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', letterSpacing: '3.5px', textTransform: 'uppercase', color: '#D4AF37', fontWeight: 600 }}>
+            <div style={{ marginTop: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', letterSpacing: '3.5px', textTransform: 'uppercase', color: '#F0CA5A', fontWeight: 600 }}>
               — Waqar Foodies
             </div>
           </blockquote>
-          <div style={{ marginTop: '1.8rem', color: 'rgba(245,239,230,0.48)', letterSpacing: '2px' }}>↓</div>
+          <div style={{ marginTop: '1.8rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>↓</div>
         </motion.div>
       </section>
 
@@ -364,7 +381,7 @@ export default function SpatialShowcase({ revealed }) {
         style={{
           ...roomStyle(1),
           background: currentSec.bg,
-          transition: 'transform 0.95s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.75s ease, background 1.1s cubic-bezier(0.22, 1, 0.36, 1)',
+          transition: 'transform 0.95s cubic-bezier(0.65, 0, 0.35, 1), background 1.1s cubic-bezier(0.22, 1, 0.36, 1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -385,7 +402,7 @@ export default function SpatialShowcase({ revealed }) {
               objectFit: 'contain',
               WebkitMaskImage: 'radial-gradient(ellipse 54% 68% at 50% 50%, #000 54%, rgba(0,0,0,0.45) 78%, transparent 100%)',
               maskImage: 'radial-gradient(ellipse 54% 68% at 50% 50%, #000 54%, rgba(0,0,0,0.45) 78%, transparent 100%)',
-              transition: 'opacity 0.18s ease',
+              transition: 'opacity 0.16s ease',
             }}
           />
         </div>
@@ -411,12 +428,12 @@ export default function SpatialShowcase({ revealed }) {
             transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
             style={{
               padding: '1.2rem 1.4rem',
-              borderLeft: '2px solid rgba(212,175,55,0.65)',
-              background: 'linear-gradient(90deg, rgba(14,13,11,0.65), transparent)',
+              borderLeft: '2px solid rgba(212,175,55,0.75)',
+              background: 'linear-gradient(90deg, rgba(12,11,9,0.75), transparent)',
               borderRadius: '0 14px 14px 0',
             }}
           >
-            <div style={{ fontSize: '0.76rem', letterSpacing: '2.2px', textTransform: 'uppercase', color: '#D4AF37', marginBottom: '0.45rem', fontWeight: 600 }}>
+            <div style={{ fontSize: '0.76rem', letterSpacing: '2.2px', textTransform: 'uppercase', color: '#F0CA5A', marginBottom: '0.45rem', fontWeight: 600 }}>
               {currentSec.source}
             </div>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.45rem, 2.8vw, 2.6rem)', margin: 0, color: '#F5EFE6', lineHeight: 1.18 }}>
@@ -434,12 +451,12 @@ export default function SpatialShowcase({ revealed }) {
             style={{
               textAlign: 'right',
               padding: '1.2rem 1.4rem',
-              borderRight: '2px solid rgba(212,175,55,0.65)',
-              background: 'linear-gradient(-90deg, rgba(14,13,11,0.65), transparent)',
+              borderRight: '2px solid rgba(212,175,55,0.75)',
+              background: 'linear-gradient(-90deg, rgba(12,11,9,0.75), transparent)',
               borderRadius: '14px 0 0 14px',
             }}
           >
-            <p style={{ color: '#EAE0D2', fontSize: 'clamp(0.9rem, 1.25vw, 1.12rem)', lineHeight: 1.65, margin: 0 }}>
+            <p style={{ color: '#F5EFE6', fontSize: 'clamp(0.9rem, 1.25vw, 1.12rem)', lineHeight: 1.65, margin: 0 }}>
               {currentSec.body}
             </p>
           </motion.div>
@@ -464,7 +481,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 1): Order Now Spotlight */}
+      {/* Room (1, 1): Order Now Spotlight (No changing key -> slides out visibly!) */}
       <section
         style={{
           ...roomStyle(2),
@@ -473,16 +490,9 @@ export default function SpatialShowcase({ revealed }) {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '96px 24px 54px 24px',
-          background: 'radial-gradient(circle at 50% 42%, #1D1A14 0%, #121212 72%)',
         }}
       >
-        <motion.div
-          key={`cta-${activeRoom === 2}`}
-          initial={{ opacity: 0, y: 28, filter: 'blur(16px)' }}
-          animate={activeRoom === 2 ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          style={{ maxWidth: '820px', width: '100%', textAlign: 'center' }}
-        >
+        <div style={{ maxWidth: '820px', width: '100%', textAlign: 'center' }}>
           <h2 className="wf-section-title">
             Crafted For <span>Tonight</span>
           </h2>
@@ -510,10 +520,10 @@ export default function SpatialShowcase({ revealed }) {
           <button type="button" className="wf-btn-gold" style={{ minWidth: '220px' }} onClick={() => navigate('/menu')}>
             Order Now
           </button>
-        </motion.div>
+        </div>
       </section>
 
-      {/* Room (1, 2): Testimonials */}
+      {/* Room (1, 2): Testimonials (No changing key -> slides out visibly!) */}
       <section
         style={{
           ...roomStyle(3),
@@ -522,25 +532,18 @@ export default function SpatialShowcase({ revealed }) {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '96px 24px 54px 24px',
-          background: 'radial-gradient(circle at 50% 42%, #1D1A14 0%, #121212 72%)',
         }}
       >
-        <motion.div
-          key={`testi-${activeRoom === 3}`}
-          initial={{ opacity: 0, y: 28, filter: 'blur(16px)' }}
-          animate={activeRoom === 3 ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          style={{ width: '100%', maxWidth: '780px' }}
-        >
+        <div style={{ width: '100%', maxWidth: '780px' }}>
           <h2 className="wf-section-title">
             Voices After <span>Darkness</span>
           </h2>
           <p className="wf-section-sub">Swipe inside to browse reviews, or outside to continue.</p>
           <TestimonialsBox />
-        </motion.div>
+        </div>
       </section>
 
-      {/* Room (0, 2): Submit Review */}
+      {/* Room (0, 2): Submit Review (No changing key -> slides out visibly!) */}
       <section
         ref={reviewPanelRef}
         style={{
@@ -551,18 +554,11 @@ export default function SpatialShowcase({ revealed }) {
           alignItems: 'center',
           padding: '104px 24px 64px 24px',
           overflowY: 'auto',
-          background: 'radial-gradient(circle at 50% 42%, #1D1A14 0%, #121212 72%)',
         }}
       >
-        <motion.div
-          key={`rev-${activeRoom === 4}`}
-          initial={{ opacity: 0, y: 28, filter: 'blur(16px)' }}
-          animate={activeRoom === 4 ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          style={{ width: '100%' }}
-        >
+        <div style={{ width: '100%' }}>
           <ReviewForm />
-        </motion.div>
+        </div>
       </section>
 
       {/* Lower-Left 2D Spatial Mini-Map HUD */}
@@ -575,7 +571,7 @@ export default function SpatialShowcase({ revealed }) {
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          background: 'rgba(18, 17, 15, 0.84)',
+          background: 'rgba(18, 17, 15, 0.86)',
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(212, 175, 55, 0.34)',
           borderRadius: '16px',
