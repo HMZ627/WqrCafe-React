@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MENU_ITEMS, useApp } from '../context/AppContext';
+import OrderButton from '../components/OrderButton';
 
 export default function MenuPage() {
   const { cartItems, addToCart, setIsCheckoutOpen } = useApp();
@@ -69,9 +70,7 @@ export default function MenuPage() {
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              <button
-                type="button"
-                className="wf-btn-gold"
+              <OrderButton
                 onClick={() => {
                   const alreadyInCart = cartItems.some((c) => c.id === item.id);
                   if (!alreadyInCart) addToCart(item.id, 1);
@@ -79,7 +78,7 @@ export default function MenuPage() {
                 }}
               >
                 Order now
-              </button>
+              </OrderButton>
               <button
                 type="button"
                 className="wf-btn"
