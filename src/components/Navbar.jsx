@@ -79,6 +79,7 @@ export default function Navbar() {
             aria-label="Open order bag"
             onClick={() => setIsBagOpen((prev) => !prev)}
           >
+            <span className="wf-bag-shine-layer" />
             <svg
               width="23"
               height="23"
@@ -88,6 +89,7 @@ export default function Navbar() {
               strokeWidth="1.9"
               strokeLinecap="round"
               strokeLinejoin="round"
+              style={{ position: 'relative', zIndex: 1 }}
             >
               <path d="M6 7h12l1 13H5L6 7z" />
               <path d="M9 7V5a3 3 0 0 1 6 0v2" />
