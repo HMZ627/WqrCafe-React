@@ -13,16 +13,27 @@
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
+html {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0a08;
+  overflow-y: auto;
+}
+
+body {
   margin: 0;
   padding: 0;
   background-color: #0b0a08;
   color: var(--wf-cream);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
   overscroll-behavior-y: none;
+  min-height: 100dvh;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
   min-height: 100dvh;
 }
 
@@ -36,7 +47,7 @@ button {
   cursor: pointer;
 }
 
-/* Navbar (No heavy backdrop-filter so sliding rooms stay at locked 60fps) */
+/* Navbar */
 .wf-navbar {
   position: fixed;
   top: 0;
@@ -89,7 +100,15 @@ button {
   flex-wrap: wrap;
 }
 
+/* ============================================================================
+   Standard & Gold Buttons (Left-to-Right White Flash + Light-Up on Hover)
+   ============================================================================ */
 .wf-btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #1e1c18, #161512);
   color: var(--wf-cream);
   border: 1px solid var(--wf-border);
@@ -98,17 +117,24 @@ button {
   font-weight: 600;
   font-size: 0.92rem;
   white-space: nowrap;
-  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .wf-btn:hover {
-  border-color: var(--wf-gold);
-  color: var(--wf-gold-bright);
-  box-shadow: 0 0 18px rgba(212, 175, 55, 0.24);
+  background: linear-gradient(135deg, #2b261d, #1d1a14);
+  border-color: var(--wf-gold-bright);
+  color: #fff6e5;
+  filter: brightness(1.16);
+  box-shadow: 0 0 22px rgba(240, 202, 90, 0.36);
   transform: translateY(-1px);
 }
 
 .wf-btn-gold {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #d4af37, #b88e24);
   color: #121212;
   border: none;
@@ -122,15 +148,47 @@ button {
 }
 
 .wf-btn-gold:hover {
-  background: linear-gradient(135deg, #ecc95b, #d4af37);
+  background: linear-gradient(135deg, #f3d266, #d9b23b);
   color: #0d0d0d;
-  box-shadow: 0 8px 26px rgba(212, 175, 55, 0.42);
+  filter: brightness(1.14);
+  box-shadow: 0 0 26px rgba(255, 210, 80, 0.55);
   transform: translateY(-1px);
 }
 
 .wf-btn-gold:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Left-to-right white flash sweep on hover for all non-Order buttons */
+.wf-btn::after,
+.wf-btn-gold::after,
+.wf-qty-btn::after,
+.wf-bag-shine-layer::after {
+  content: "";
+  position: absolute;
+  top: -25%;
+  left: -135%;
+  width: 65%;
+  height: 150%;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.16) 35%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.16) 65%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-22deg);
+  pointer-events: none;
+  transition: left 0.58s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wf-btn:hover::after,
+.wf-btn-gold:hover::after,
+.wf-qty-btn:hover::after,
+.wf-bag-btn:hover .wf-bag-shine-layer::after {
+  left: 145%;
 }
 
 /*
@@ -217,13 +275,22 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .wf-bag-btn:hover {
   border-color: var(--wf-gold-bright);
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.28);
+  filter: brightness(1.16);
+  box-shadow: 0 0 22px rgba(240, 202, 90, 0.4);
   transform: translateY(-2px) scale(1.03);
+}
+
+.wf-bag-shine-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .wf-bag-badge {
@@ -275,6 +342,8 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 }
 
 .wf-qty-btn {
+  position: relative;
+  overflow: hidden;
   width: 32px;
   height: 32px;
   border-radius: 9px;
@@ -286,11 +355,14 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: border-color 0.25s ease, color 0.25s ease, filter 0.25s ease, box-shadow 0.25s ease;
 }
 
 .wf-qty-btn:hover {
-  border-color: var(--wf-gold);
-  color: var(--wf-gold-bright);
+  border-color: var(--wf-gold-bright);
+  color: #fff6e5;
+  filter: brightness(1.16);
+  box-shadow: 0 0 14px rgba(240, 202, 90, 0.32);
 }
 
 /* Subpages Container */
@@ -417,11 +489,13 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: border-color 0.25s ease, color 0.25s ease, filter 0.25s ease;
 }
 
 .wf-modal-close:hover {
   border-color: var(--wf-gold);
   color: var(--wf-gold-bright);
+  filter: brightness(1.15);
 }
 
 /* Menu Grid */
