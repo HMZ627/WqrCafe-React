@@ -14,12 +14,16 @@ export default function App() {
   return (
     <>
       <GhostFibers
-        lineColor="#181205"
         glowColor="#ffc204"
         secondaryColor="#ffc610"
-        backgroundColor="#0B0A08"
-        speed={0.42}
-        opacity={0.82}
+        speed={0.75}
+        intensity={0.58}
+        glowAmount={0.55}
+        vignette={0.82}
+        fiberCount={18}
+        warpAmount={0.8}
+        noiseScale={1.6}
+        mouseInfluence={0.45}
       />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Navbar />
