@@ -16,13 +16,8 @@ export default function App() {
       <GhostFibers
         glowColor="#ffc204"
         secondaryColor="#ffc610"
-        speed={0.75}
-        intensity={0.58}
-        glowAmount={0.55}
-        vignette={0.82}
-        fiberCount={18}
-        warpAmount={0.8}
-        noiseScale={1.6}
+        speed={0.55}
+        intensity={0.78}
         mouseInfluence={0.45}
       />
       <div style={{ position: 'relative', zIndex: 1 }}>
