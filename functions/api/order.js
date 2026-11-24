@@ -6,6 +6,7 @@ import {
   validateImageFile,
   validatePhone,
 } from '../_utils/security.js';
+import { appendOrderToSheet } from '../_utils/gsheet.js';
 
 const MENU_CATALOG = {
   tower_burger: { name: 'Tower Burger', price: 500 },
@@ -30,7 +31,6 @@ export async function onRequestPost({ request, env }) {
       return jsonResponse({ error: 'Invalid cart data.' }, 400);
     }
 
-    // Recompute prices server-side so clients cannot tamper with PKR prices
     const verifiedItems = [];
     let grandTotal = 0;
     for (const entry of rawItems) {
@@ -68,6 +68,10 @@ export async function onRequestPost({ request, env }) {
       .map((i) => `• **${i.name}** x ${i.qty} — \`PKR ${(i.price * i.qty).toLocaleString()}/-\``)
       .join('\n');
 
+    const sheetOrderText = verifiedItems
+      .map((i) => `${i.name} x ${i.qty}`)
+      .join(', ') + ` (PKR ${grandTotal.toLocaleString()}/-)`;
+
     const embed = {
       title: `New Order Received — ${orderId}`,
       color: 0xd4af37,
@@ -88,13 +92,24 @@ export async function onRequestPost({ request, env }) {
       embed.image = { url: `attachment://${fileInfo.filename}` };
     }
 
-    const sent = await sendDiscordEmbed(
-      env.DISCORD_ORDER_WEBHOOK,
-      { username: 'Waqar Foodies Orders', embeds: [embed] },
-      fileInfo
-    );
+    const [discordResult] = await Promise.allSettled([
+      sendDiscordEmbed(
+        env.DISCORD_ORDER_WEBHOOK,
+        { username: 'Waqar Foodies Orders', embeds: [embed] },
+        fileInfo
+      ),
+      appendOrderToSheet(env, {
+        orderId,
+        name,
+        address,
+        orderSummary: sheetOrderText,
+        phone,
+        paymentMethod,
+      }).catch(() => false),
+    ]);
 
-    if (!sent) {
+    const discordSent = discordResult.status === 'fulfilled' && discordResult.value;
+    if (!discordSent) {
       return jsonResponse({ error: 'Unable to submit order right now. Please try again shortly.' }, 502);
     }
 
