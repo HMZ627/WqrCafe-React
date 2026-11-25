@@ -101,6 +101,15 @@ export default function CheckoutModal() {
         saveCustomerSession(null);
       }
 
+      // Notify any open /admin tab on the same device immediately
+      try {
+        const ch = new BroadcastChannel('wf_orders_sync');
+        ch.postMessage({ type: 'new_order', orderId: data.orderId });
+        ch.close();
+      } catch {
+        // Ignore if unsupported
+      }
+
       clearCart();
       setIsCheckoutOpen(false);
       setConfirmedOrderId(data.orderId);
@@ -175,7 +184,7 @@ export default function CheckoutModal() {
 
                 <div
                   style={{
-                    background: 'rgba(255,255,255,0.03)',
+                    background: 'rgba(255,250,236,0.06)',
                     border: '1px solid var(--wf-border)',
                     borderRadius: '14px',
                     padding: '0.85rem 1rem',
@@ -194,7 +203,7 @@ export default function CheckoutModal() {
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      borderTop: '1px solid rgba(212,175,55,0.2)',
+                      borderTop: '1px solid rgba(255,246,220,0.18)',
                       paddingTop: '0.5rem',
                       marginTop: '0.5rem',
                       fontWeight: 700,
@@ -263,8 +272,8 @@ export default function CheckoutModal() {
                 {paymentMethod === 'Online (JazzCash)' && (
                   <div
                     style={{
-                      background: 'linear-gradient(135deg, rgba(212,175,55,0.14), rgba(20,19,17,0.95))',
-                      border: '1px solid var(--wf-gold)',
+                      background: 'linear-gradient(135deg, rgba(255,235,170,0.12), rgba(255,250,236,0.04))',
+                      border: '1px solid rgba(240,202,90,0.48)',
                       borderRadius: '14px',
                       padding: '1rem',
                       marginBottom: '1rem',
