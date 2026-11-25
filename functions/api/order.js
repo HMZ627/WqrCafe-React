@@ -1,6 +1,9 @@
 import {
+  enforceRateLimit,
   generateOrderId,
   jsonResponse,
+  parseSafeOrderForm,
+  requireSameOrigin,
   sanitizeText,
   sendDiscordEmbed,
   validateImageFile,
@@ -14,8 +17,22 @@ const MENU_CATALOG = {
 };
 
 export async function onRequestPost({ request, env }) {
+  if (!requireSameOrigin(request)) {
+    return jsonResponse({ error: 'Forbidden' }, 403);
+  }
+
+  const rl = enforceRateLimit(request, 'order', 1, 15000);
+  if (!rl.allowed) {
+    return jsonResponse({ error: `Please wait ${rl.retryAfterSec}s before placing another order.` }, 429);
+  }
+
+  const parsed = await parseSafeOrderForm(request);
+  if (!parsed.ok) {
+    return jsonResponse({ error: parsed.error }, parsed.status);
+  }
+
   try {
-    const formData = await request.formData();
+    const formData = parsed.formData;
     const name = sanitizeText(formData.get('name'), 80);
     const address = sanitizeText(formData.get('address'), 250);
     const { valid: validPhone, normalized: phone } = validatePhone(formData.get('phone'));
@@ -26,14 +43,19 @@ export async function onRequestPost({ request, env }) {
 
     let rawItems = [];
     try {
-      rawItems = JSON.parse(formData.get('items') || '[]');
+      const rawJson = formData.get('items');
+      if (typeof rawJson !== 'string' || rawJson.length > 2048) {
+        return jsonResponse({ error: 'Invalid cart data.' }, 400);
+      }
+      rawItems = JSON.parse(rawJson);
+      if (!Array.isArray(rawItems)) throw new Error('Not array');
     } catch {
       return jsonResponse({ error: 'Invalid cart data.' }, 400);
     }
 
     const verifiedItems = [];
     let grandTotal = 0;
-    for (const entry of rawItems) {
+    for (const entry of rawItems.slice(0, 20)) {
       const meta = MENU_CATALOG[entry?.id];
       const qty = Math.min(50, Math.max(0, parseInt(entry?.qty, 10) || 0));
       if (meta && qty > 0) {
@@ -68,9 +90,9 @@ export async function onRequestPost({ request, env }) {
       .map((i) => `• **${i.name}** x ${i.qty} — \`PKR ${(i.price * i.qty).toLocaleString()}/-\``)
       .join('\n');
 
-    const sheetOrderText = verifiedItems
-      .map((i) => `${i.name} x ${i.qty}`)
-      .join(', ') + ` (PKR ${grandTotal.toLocaleString()}/-)`;
+    const sheetOrderText =
+      verifiedItems.map((i) => `${i.name} x ${i.qty}`).join(', ') +
+      ` (PKR ${grandTotal.toLocaleString()}/-)`;
 
     const embed = {
       title: `New Order Received — ${orderId}`,
