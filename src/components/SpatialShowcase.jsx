@@ -359,7 +359,7 @@ export default function SpatialShowcase({ revealed }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: 'transparent' }}>
-      {/* Room (0, 0): Sleek Curvy Quote inside Frosted Glassmorphism Card */}
+      {/* Room (0, 0): Sleek Curvy Quote inside Reference-Style Frosted Glass Card */}
       <section
         style={{
           ...roomStyle(0),
@@ -384,32 +384,31 @@ export default function SpatialShowcase({ revealed }) {
             className="wf-glass"
             style={{
               margin: 0,
-              padding: '2.4rem 2.8rem 2rem 2.8rem',
-              background: 'linear-gradient(145deg, rgba(28, 25, 19, 0.48), rgba(14, 13, 10, 0.34))',
-              borderRadius: '24px',
+              padding: '2.5rem 2.9rem 2.1rem 2.9rem',
+              borderRadius: '26px',
             }}
           >
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.65)', display: 'block', textAlign: 'left', lineHeight: 0.45, marginBottom: '0.7rem' }}>
+            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(255,246,220,0.55)', display: 'block', textAlign: 'left', lineHeight: 0.45, marginBottom: '0.7rem' }}>
               “
             </span>
             <h1 style={{ margin: 0, lineHeight: 1.25, fontWeight: 400 }}>
-              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.3rem, 7.2vw, 6.2rem)', color: '#F0CA5A', textShadow: '0 4px 28px rgba(0,0,0,0.85)', paddingRight: '6px' }}>
+              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.3rem, 7.2vw, 6.2rem)', color: '#F0CA5A', textShadow: '0 4px 24px rgba(0,0,0,0.75)', paddingRight: '6px' }}>
                 Flavour
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#E6DAC8' }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
                 , that comes{' '}
               </span>
-              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.3rem, 4.6vw, 3.8rem)', color: '#FFFDF8' }}>
+              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.3rem, 4.6vw, 3.8rem)', color: '#FFFFFF' }}>
                 Alive{' '}
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#E6DAC8' }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
                 After{' '}
               </span>
               <span
                 style={{
                   fontFamily: "'Great Vibes', cursive",
                   fontSize: 'clamp(3.2rem, 7vw, 6rem)',
-                  background: 'linear-gradient(180deg, #FFF5DC 0%, #F0CA5A 58%, #B88E24 100%)',
+                  background: 'linear-gradient(180deg, #FFF8E6 0%, #F0CA5A 58%, #C99A27 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   padding: '0 6px',
@@ -418,7 +417,7 @@ export default function SpatialShowcase({ revealed }) {
                 Darkness
               </span>
             </h1>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.65)', display: 'block', textAlign: 'right', lineHeight: 0.45, marginTop: '0.7rem' }}>
+            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(255,246,220,0.55)', display: 'block', textAlign: 'right', lineHeight: 0.45, marginTop: '0.7rem' }}>
               ”
             </span>
             <div style={{ marginTop: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', letterSpacing: '3.5px', textTransform: 'uppercase', color: '#F0CA5A', fontWeight: 600 }}>
@@ -429,7 +428,7 @@ export default function SpatialShowcase({ revealed }) {
         </motion.div>
       </section>
 
-      {/* Room (0, 1): Burger Prep Full-Screen Showcase with Glassmorphic Side Panels */}
+      {/* Room (0, 1): Burger Prep Full-Screen Showcase with Frosted Glass Side Cards */}
       <section
         style={{
           ...roomStyle(1),
@@ -481,10 +480,8 @@ export default function SpatialShowcase({ revealed }) {
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="wf-glass"
             style={{
-              padding: '1.3rem 1.5rem',
-              background: 'linear-gradient(135deg, rgba(24, 21, 16, 0.54), rgba(14, 12, 9, 0.36))',
-              borderLeft: '2.5px solid rgba(240, 202, 90, 0.8)',
-              borderRadius: '18px',
+              padding: '1.35rem 1.55rem',
+              borderRadius: '20px',
             }}
           >
             <div style={{ fontSize: '0.76rem', letterSpacing: '2.2px', textTransform: 'uppercase', color: '#F0CA5A', marginBottom: '0.45rem', fontWeight: 600 }}>
@@ -505,10 +502,8 @@ export default function SpatialShowcase({ revealed }) {
             className="wf-glass"
             style={{
               textAlign: 'right',
-              padding: '1.3rem 1.5rem',
-              background: 'linear-gradient(225deg, rgba(24, 21, 16, 0.54), rgba(14, 12, 9, 0.36))',
-              borderRight: '2.5px solid rgba(240, 202, 90, 0.8)',
-              borderRadius: '18px',
+              padding: '1.35rem 1.55rem',
+              borderRadius: '20px',
             }}
           >
             <p style={{ color: '#F5EFE6', fontSize: 'clamp(0.9rem, 1.25vw, 1.12rem)', lineHeight: 1.65, margin: 0 }}>
@@ -536,7 +531,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 1): Signatures Spotlight */}
+      {/* Room (1, 1): Signatures Spotlight (inherits .wf-card frosted glassmorphism) */}
       <section
         style={{
           ...roomStyle(2),
@@ -644,13 +639,13 @@ export default function SpatialShowcase({ revealed }) {
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          background: 'linear-gradient(145deg, rgba(26, 23, 18, 0.58), rgba(14, 13, 10, 0.5))',
-          backdropFilter: 'blur(12px) saturate(135%)',
-          WebkitBackdropFilter: 'blur(12px) saturate(135%)',
-          border: '1px solid rgba(240, 202, 90, 0.3)',
+          background: 'linear-gradient(135deg, rgba(255, 250, 236, 0.11), rgba(255, 248, 228, 0.04))',
+          backdropFilter: 'blur(22px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(160%)',
+          border: '1px solid rgba(255, 246, 220, 0.24)',
           borderRadius: '16px',
           padding: '8px 14px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 244, 214, 0.14)',
+          boxShadow: '0 14px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
         }}
       >
         <div
@@ -673,8 +668,8 @@ export default function SpatialShowcase({ revealed }) {
                 height: '10px',
                 borderRadius: '3px',
                 cursor: 'pointer',
-                background: idx === activeRoom ? '#D4AF37' : 'rgba(245,239,230,0.2)',
-                border: '1px solid rgba(212,175,55,0.35)',
+                background: idx === activeRoom ? '#D4AF37' : 'rgba(245,239,230,0.22)',
+                border: '1px solid rgba(255,246,220,0.3)',
                 boxShadow: idx === activeRoom ? '0 0 10px rgba(212,175,55,0.75)' : 'none',
                 transform: idx === activeRoom ? 'scale(1.2)' : 'scale(1)',
                 transition: 'all 0.35s ease',
@@ -686,7 +681,7 @@ export default function SpatialShowcase({ revealed }) {
           <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#F5EFE6', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
             {target.title}
           </span>
-          <span style={{ fontSize: '0.74rem', color: '#D4AF37', letterSpacing: '0.8px' }}>
+          <span style={{ fontSize: '0.74rem', color: '#F0CA5A', letterSpacing: '0.8px' }}>
             {target.dir}
           </span>
         </div>
