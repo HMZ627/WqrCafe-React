@@ -1,5 +1,4 @@
 function safeCell(val) {
-  // Strip tabs/CR/LF and block formula prefixes even after leading spaces
   const cleaned = String(val ?? '').replace(/[\t\r\n]+/g, ' ').trim();
   return /^[\s]*[=+\-@]/.test(cleaned) ? `'${cleaned}` : cleaned;
 }
@@ -9,26 +8,31 @@ export async function appendOrderToSheet(env, order) {
     return false;
   }
 
-  const resp = await fetch(env.GSHEET_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      secret: env.GSHEET_SCRIPT_SECRET,
-      action: 'append',
-      order: {
-        orderId: safeCell(order.orderId),
-        name: safeCell(order.name),
-        address: safeCell(order.address),
-        orderSummary: safeCell(order.orderSummary),
-        phone: safeCell(order.phone),
-        paymentMethod: safeCell(order.paymentMethod),
-      },
-    }),
-  });
+  try {
+    const resp = await fetch(env.GSHEET_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(12000),
+      body: JSON.stringify({
+        secret: env.GSHEET_SCRIPT_SECRET,
+        action: 'append',
+        order: {
+          orderId: safeCell(order.orderId),
+          name: safeCell(order.name),
+          address: safeCell(order.address),
+          orderSummary: safeCell(order.orderSummary),
+          phone: safeCell(order.phone),
+          paymentMethod: safeCell(order.paymentMethod),
+        },
+      }),
+    });
 
-  if (!resp.ok) return false;
-  const data = await resp.json().catch(() => ({}));
-  return Boolean(data.ok);
+    if (!resp.ok) return false;
+    const data = await resp.json().catch(() => ({}));
+    return Boolean(data.ok);
+  } catch {
+    return false;
+  }
 }
 
 export async function listOrdersFromSheet(env) {
@@ -39,6 +43,7 @@ export async function listOrdersFromSheet(env) {
   const resp = await fetch(env.GSHEET_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(12000),
     body: JSON.stringify({
       secret: env.GSHEET_SCRIPT_SECRET,
       action: 'list',
@@ -71,6 +76,7 @@ export async function dispatchOrderInSheet(env, orderNo) {
   const resp = await fetch(env.GSHEET_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(12000),
     body: JSON.stringify({
       secret: env.GSHEET_SCRIPT_SECRET,
       action: 'dispatch',
