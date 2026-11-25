@@ -48,8 +48,8 @@ export default function TestimonialsBox() {
       maxWidth: '580px',
       padding: '1.3rem 1.6rem',
       borderRadius: '18px',
-      background: 'linear-gradient(145deg, #1E1C17, #161512)',
-      border: '1px solid rgba(212, 175, 55, 0.2)',
+      background: 'linear-gradient(145deg, rgba(32, 29, 23, 0.72), rgba(18, 16, 13, 0.6))',
+      border: '1px solid rgba(240, 202, 90, 0.22)',
       transition: 'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, filter 0.65s ease',
       willChange: 'transform, opacity',
       cursor: 'pointer',
@@ -62,8 +62,9 @@ export default function TestimonialsBox() {
         filter: 'blur(0px)',
         opacity: 1,
         zIndex: 5,
-        borderColor: '#D4AF37',
-        boxShadow: '0 18px 42px rgba(0,0,0,0.65), 0 0 24px rgba(212,175,55,0.18)',
+        borderColor: 'rgba(240, 202, 90, 0.65)',
+        boxShadow:
+          '0 18px 42px rgba(0,0,0,0.6), 0 0 24px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,244,214,0.18)',
       };
     }
     if (pos === -1) {
@@ -144,8 +145,11 @@ export default function TestimonialsBox() {
         margin: '0 auto',
         overflow: 'hidden',
         borderRadius: '24px',
-        background: 'rgba(18, 17, 14, 0.72)',
-        border: '1px solid rgba(212,175,55,0.28)',
+        background: 'linear-gradient(150deg, rgba(26, 23, 18, 0.46), rgba(14, 13, 10, 0.34))',
+        backdropFilter: 'blur(12px) saturate(135%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(135%)',
+        border: '1px solid rgba(240, 202, 90, 0.24)',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 244, 214, 0.14)',
         perspective: '900px',
         userSelect: 'none',
         cursor: 'ns-resize',
