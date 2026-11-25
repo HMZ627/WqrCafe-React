@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 function escapeRegExp(str) {
@@ -47,38 +47,109 @@ export default function AdminPage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [dashError, setDashError] = useState('');
   const [dispatchingId, setDispatchingId] = useState('');
+  const [lastSyncedAt, setLastSyncedAt] = useState('');
 
-  async function fetchOrders() {
-    setLoadingOrders(true);
-    setDashError('');
+  // Concurrency guards so background auto-refresh never clashes with Dispatch
+  const fetchVersionRef = useRef(0);
+  const dispatchingRef = useRef(false);
+  const recentlyDispatchedRef = useRef(new Set());
+
+  const fetchOrders = useCallback(async ({ silent = false } = {}) => {
+    if (silent && dispatchingRef.current) return;
+    if (silent && document.visibilityState === 'hidden') return;
+
+    const myVersion = ++fetchVersionRef.current;
+    if (!silent) {
+      setLoadingOrders(true);
+      setDashError('');
+    }
+
     try {
-      const resp = await fetch('/api/admin/orders');
+      const resp = await fetch('/api/admin/orders', { cache: 'no-store' });
+      if (myVersion !== fetchVersionRef.current) return;
+
       if (resp.status === 401) {
         setIsAuthed(false);
         setAuthChecked(true);
         return;
       }
+
       const data = await resp.json();
+      if (myVersion !== fetchVersionRef.current) return;
+
       if (!resp.ok) {
-        setDashError(data.error || 'Could not load orders.');
+        if (!silent) setDashError(data.error || 'Could not load orders.');
       } else {
         setIsAuthed(true);
         setSheetConfigured(Boolean(data.configured));
-        setOrders(data.pending || []);
+        const incoming = (data.pending || []).filter(
+          (o) => !recentlyDispatchedRef.current.has(o.orderNo)
+        );
+        setOrders(incoming);
         setTotalDispatched(data.totalDispatched || 0);
         setSheetLink(data.sheetLink || '');
+        setLastSyncedAt(
+          new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          })
+        );
+        if (silent) setDashError('');
       }
     } catch {
-      setDashError('Network error while loading orders.');
+      if (!silent && myVersion === fetchVersionRef.current) {
+        setDashError('Network error while loading orders.');
+      }
     } finally {
-      setAuthChecked(true);
-      setLoadingOrders(false);
+      if (myVersion === fetchVersionRef.current) {
+        setAuthChecked(true);
+        if (!silent) setLoadingOrders(false);
+      }
     }
-  }
-
-  useEffect(() => {
-    fetchOrders();
   }, []);
+
+  // Initial check
+  useEffect(() => {
+    fetchOrders({ silent: false });
+  }, [fetchOrders]);
+
+  // Automatic background refresh when authenticated + tab visibility/focus + BroadcastChannel
+  useEffect(() => {
+    if (!isAuthed) return undefined;
+
+    const intervalId = setInterval(() => {
+      fetchOrders({ silent: true });
+    }, 4000);
+
+    const handleFocusOrVisible = () => {
+      if (document.visibilityState === 'visible') {
+        fetchOrders({ silent: true });
+      }
+    };
+
+    window.addEventListener('focus', handleFocusOrVisible);
+    document.addEventListener('visibilitychange', handleFocusOrVisible);
+
+    let channel = null;
+    try {
+      channel = new BroadcastChannel('wf_orders_sync');
+      channel.onmessage = (event) => {
+        if (event?.data?.type === 'new_order') {
+          fetchOrders({ silent: true });
+        }
+      };
+    } catch {
+      // BroadcastChannel not supported in older browsers; 4s interval still handles updates
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocusOrVisible);
+      document.removeEventListener('visibilitychange', handleFocusOrVisible);
+      if (channel) channel.close();
+    };
+  }, [isAuthed, fetchOrders]);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -96,7 +167,7 @@ export default function AdminPage() {
       } else {
         setPassword('');
         setIsAuthed(true);
-        await fetchOrders();
+        await fetchOrders({ silent: false });
       }
     } catch {
       setLoginError('Unable to reach server.');
@@ -114,8 +185,11 @@ export default function AdminPage() {
   }
 
   async function handleDispatch(orderNo) {
+    dispatchingRef.current = true;
+    fetchVersionRef.current += 1;
     setDispatchingId(orderNo);
     setDashError('');
+
     try {
       const resp = await fetch('/api/admin/dispatch', {
         method: 'POST',
@@ -126,12 +200,15 @@ export default function AdminPage() {
       if (!resp.ok) {
         setDashError(data.error || 'Failed to dispatch order.');
       } else {
+        recentlyDispatchedRef.current.add(orderNo);
+        setTimeout(() => recentlyDispatchedRef.current.delete(orderNo), 15000);
         setOrders((prev) => prev.filter((o) => o.orderNo !== orderNo));
         setTotalDispatched((prev) => prev + 1);
       }
     } catch {
       setDashError('Network error while dispatching order.');
     } finally {
+      dispatchingRef.current = false;
       setDispatchingId('');
     }
   }
@@ -219,10 +296,28 @@ export default function AdminPage() {
           <h2 className="wf-section-title" style={{ textAlign: 'left', marginBottom: '0.2rem' }}>
             Pending <span>Orders</span>
           </h2>
-          <div style={{ color: 'var(--wf-cream-muted)', fontSize: '0.92rem' }}>
-            Pending: <strong style={{ color: 'var(--wf-gold-bright)' }}>{orders.length}</strong>
-            {'  •  '}
-            Dispatched: <strong style={{ color: '#8bd89b' }}>{totalDispatched}</strong>
+          <div style={{ color: 'var(--wf-cream-muted)', fontSize: '0.92rem', display: 'flex', flexWrap: 'wrap', gap: '0.8rem', alignItems: 'center' }}>
+            <span>
+              Pending: <strong style={{ color: 'var(--wf-gold-bright)' }}>{orders.length}</strong>
+            </span>
+            <span>•</span>
+            <span>
+              Dispatched: <strong style={{ color: '#8bd89b' }}>{totalDispatched}</strong>
+            </span>
+            <span>•</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#8bd89b', fontSize: '0.84rem' }}>
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#8bd89b',
+                  boxShadow: '0 0 8px #8bd89b',
+                  display: 'inline-block',
+                }}
+              />
+              Auto-Sync Active{lastSyncedAt ? ` (${lastSyncedAt})` : ''}
+            </span>
           </div>
         </div>
 
@@ -237,7 +332,12 @@ export default function AdminPage() {
               Open Google Sheet
             </a>
           )}
-          <button type="button" className="wf-btn" onClick={fetchOrders} disabled={loadingOrders}>
+          <button
+            type="button"
+            className="wf-btn"
+            onClick={() => fetchOrders({ silent: false })}
+            disabled={loadingOrders}
+          >
             {loadingOrders ? 'Refreshing...' : 'Refresh'}
           </button>
           <button type="button" className="wf-btn" onClick={handleLogout}>
@@ -248,8 +348,8 @@ export default function AdminPage() {
 
       {!sheetConfigured && (
         <div className="wf-alert-err">
-          Google Sheets database is not fully configured yet. Add <strong>GSHEET_LINK</strong>,{' '}
-          <strong>GOOGLE_SERVICE_ACCOUNT_EMAIL</strong>, and <strong>GOOGLE_PRIVATE_KEY</strong> in Cloudflare Secrets.
+          Google Sheets database is not configured yet. Add <strong>GSHEET_LINK</strong>,{' '}
+          <strong>GSHEET_SCRIPT_URL</strong>, and <strong>GSHEET_SCRIPT_SECRET</strong> in Cloudflare Secrets.
         </div>
       )}
 
