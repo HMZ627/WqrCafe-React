@@ -86,19 +86,26 @@ export default function IntroOverlay({ onRevealReady }) {
               inset: 0,
               width: '100vw',
               height: '100dvh',
+              backgroundColor: '#0B0A09',
               objectFit: 'cover',
               objectPosition: 'center center',
-              transform: 'scale(1.18)',
+              transform: 'scale(1.22)',
+              WebkitMaskImage:
+                'linear-gradient(180deg, transparent 0%, transparent 7%, #000 20%, #000 80%, transparent 93%, transparent 100%)',
+              maskImage:
+                'linear-gradient(180deg, transparent 0%, transparent 7%, #000 20%, #000 80%, transparent 93%, transparent 100%)',
               opacity: videoReady ? 1 : 0,
               transition: 'opacity 1s ease',
             }}
           />
+          {/* Top & bottom charcoal vignette ensures zero white bars show on any aspect ratio */}
           <div
             style={{
               position: 'absolute',
               inset: 0,
               pointerEvents: 'none',
-              boxShadow: 'inset 0 0 70px 28px #0B0A09',
+              background:
+                'linear-gradient(180deg, #0B0A09 0%, rgba(11,10,9,0.72) 10%, transparent 24%, transparent 76%, rgba(11,10,9,0.72) 90%, #0B0A09 100%)',
             }}
           />
           <button
