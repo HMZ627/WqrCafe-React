@@ -1,6 +1,7 @@
 function safeCell(val) {
-  const s = String(val ?? '');
-  return /^[=+\-@]/.test(s) ? `'${s}` : s;
+  // Strip tabs/CR/LF and block formula prefixes even after leading spaces
+  const cleaned = String(val ?? '').replace(/[\t\r\n]+/g, ' ').trim();
+  return /^[\s]*[=+\-@]/.test(cleaned) ? `'${cleaned}` : cleaned;
 }
 
 export async function appendOrderToSheet(env, order) {
@@ -32,7 +33,7 @@ export async function appendOrderToSheet(env, order) {
 
 export async function listOrdersFromSheet(env) {
   if (!env.GSHEET_SCRIPT_URL || !env.GSHEET_SCRIPT_SECRET) {
-    return { configured: false, pending: [], totalDispatched: 0, sheetLink: env.GSHEET_LINK || '' };
+    return { configured: false, pending: [], totalDispatched: 0, sheetLink: '' };
   }
 
   const resp = await fetch(env.GSHEET_SCRIPT_URL, {
@@ -48,11 +49,17 @@ export async function listOrdersFromSheet(env) {
   const data = await resp.json();
   if (!data.ok) throw new Error(data.error || 'Unauthorized script response.');
 
+  const safeSheetLink =
+    typeof env.GSHEET_LINK === 'string' &&
+    env.GSHEET_LINK.startsWith('https://docs.google.com/spreadsheets/')
+      ? env.GSHEET_LINK
+      : '';
+
   return {
     configured: true,
     pending: data.pending || [],
     totalDispatched: data.totalDispatched || 0,
-    sheetLink: env.GSHEET_LINK || '',
+    sheetLink: safeSheetLink,
   };
 }
 
