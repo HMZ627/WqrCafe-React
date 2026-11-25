@@ -50,6 +50,8 @@ export default function CheckoutModal() {
 
   async function handleConfirm(e) {
     e.preventDefault();
+    if (submitting) return;
+
     const errs = [];
     if (name.trim().length < 2) errs.push('Full Name is required.');
     if (address.trim().length < 8) errs.push('Complete Delivery Address is required.');
@@ -88,10 +90,16 @@ export default function CheckoutModal() {
       }
 
       const resp = await fetch('/api/order', { method: 'POST', body: form });
-      const data = await resp.json();
+      const rawText = await resp.text();
+      let data = {};
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch {
+        data = {};
+      }
 
-      if (!resp.ok) {
-        setErrors([data.error || 'Unable to submit order right now.']);
+      if (!resp.ok || !data.orderId) {
+        setErrors([data.error || `Unable to submit order (status ${resp.status}). Please try again.`]);
         return;
       }
 
@@ -101,7 +109,6 @@ export default function CheckoutModal() {
         saveCustomerSession(null);
       }
 
-      // Notify any open /admin tab on the same device immediately
       try {
         const ch = new BroadcastChannel('wf_orders_sync');
         ch.postMessage({ type: 'new_order', orderId: data.orderId });
@@ -114,7 +121,7 @@ export default function CheckoutModal() {
       setIsCheckoutOpen(false);
       setConfirmedOrderId(data.orderId);
     } catch {
-      setErrors(['Network error. Please try again shortly.']);
+      setErrors(['Connection interrupted while sending your order. Please tap Confirm Order again.']);
     } finally {
       setSubmitting(false);
     }
