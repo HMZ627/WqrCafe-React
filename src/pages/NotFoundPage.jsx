@@ -52,8 +52,8 @@ export default function NotFoundPage() {
         <div
           style={{
             display: 'inline-block',
-            background: 'rgba(212,175,55,0.12)',
-            border: '1px solid rgba(212,175,55,0.35)',
+            background: 'rgba(255, 246, 214, 0.1)',
+            border: '1px solid rgba(255, 246, 220, 0.25)',
             borderRadius: '999px',
             padding: '0.3rem 1rem',
             fontSize: '0.85rem',
@@ -64,7 +64,7 @@ export default function NotFoundPage() {
           Requested Path: <strong style={{ color: '#F0CA5A' }}>{pathname}</strong>
         </div>
 
-        <p style={{ color: '#CFC4B4', fontSize: '1rem', lineHeight: 1.65, maxWidth: '500px', margin: '0 auto 1.6rem auto' }}>
+        <p style={{ color: '#E0D6C6', fontSize: '1rem', lineHeight: 1.65, maxWidth: '500px', margin: '0 auto 1.6rem auto' }}>
           The page you are looking for does not exist or may have moved. Return to Waqar Foodies or explore our signature menu.
         </p>
 
