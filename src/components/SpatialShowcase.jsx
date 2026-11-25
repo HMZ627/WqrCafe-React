@@ -70,7 +70,11 @@ export default function SpatialShowcase({ revealed }) {
   const animFrameRef = useRef(null);
   const playTokenRef = useRef(0);
   const seekFallbackRef = useRef(null);
-  const reviewPanelRef = useRef(null);
+
+  const room2Ref = useRef(null);
+  const room3Ref = useRef(null);
+  const room4Ref = useRef(null);
+
   const touchStartYRef = useRef(null);
   const touchTriggeredRef = useRef(false);
 
@@ -187,6 +191,13 @@ export default function SpatialShowcase({ revealed }) {
     }
   }
 
+  function getActiveScrollPanel() {
+    if (activeRoomRef.current === 2) return room2Ref.current;
+    if (activeRoomRef.current === 3) return room3Ref.current;
+    if (activeRoomRef.current === 4) return room4Ref.current;
+    return null;
+  }
+
   function handleScrollDirection(dir, target) {
     if (isBusyRef.current) return;
     const room = activeRoomRef.current;
@@ -210,7 +221,7 @@ export default function SpatialShowcase({ revealed }) {
       if (dir > 0) goToRoom(4);
       else goToRoom(2);
     } else if (room === 4) {
-      const panel = reviewPanelRef.current;
+      const panel = room4Ref.current;
       if (dir < 0 && (!panel || panel.scrollTop <= 4)) {
         goToRoom(3);
       }
@@ -226,13 +237,17 @@ export default function SpatialShowcase({ revealed }) {
           target?.closest?.('textarea, input, button, a, .wf-navbar')
       );
 
+    const canInternalScroll = (deltaY) => {
+      const panel = getActiveScrollPanel();
+      if (!panel) return false;
+      const canDown = panel.scrollTop + panel.clientHeight < panel.scrollHeight - 4;
+      const canUp = panel.scrollTop > 4;
+      return (deltaY > 0 && canDown) || (deltaY < 0 && canUp);
+    };
+
     const onWheel = (e) => {
       if (isInteractive(e.target) || Math.abs(e.deltaY) < 4) return;
-      if (activeRoomRef.current === 4 && reviewPanelRef.current) {
-        const rp = reviewPanelRef.current;
-        const canDown = rp.scrollTop + rp.clientHeight < rp.scrollHeight - 4;
-        if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && rp.scrollTop > 4)) return;
-      }
+      if (canInternalScroll(e.deltaY)) return;
       e.preventDefault();
       handleScrollDirection(e.deltaY > 0 ? 1 : -1, e.target);
     };
@@ -253,11 +268,7 @@ export default function SpatialShowcase({ revealed }) {
       const diff = touchStartYRef.current - e.touches[0].clientY;
       if (Math.abs(diff) < 10) return;
 
-      if (activeRoomRef.current === 4 && reviewPanelRef.current) {
-        const rp = reviewPanelRef.current;
-        const canDown = rp.scrollTop + rp.clientHeight < rp.scrollHeight - 4;
-        if ((diff > 0 && canDown) || (diff < 0 && rp.scrollTop > 4)) return;
-      }
+      if (canInternalScroll(diff)) return;
 
       e.preventDefault();
       if (!touchTriggeredRef.current && Math.abs(diff) >= 24) {
@@ -359,18 +370,10 @@ export default function SpatialShowcase({ revealed }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: 'transparent' }}>
-      {/* Room (0, 0): Sleek Curvy Quote inside Reference-Style Frosted Glass Card */}
-      <section
-        style={{
-          ...roomStyle(0),
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '96px 24px 54px 24px',
-        }}
-      >
+      {/* Room (0, 0): Sleek Curvy Quote */}
+      <section className="wf-room-section" style={roomStyle(0)}>
         <motion.div
+          className="wf-room-inner"
           initial={{ opacity: 0, y: 24, filter: 'blur(12px)' }}
           animate={
             revealed
@@ -384,7 +387,7 @@ export default function SpatialShowcase({ revealed }) {
             className="wf-glass"
             style={{
               margin: 0,
-              padding: '2.5rem 2.9rem 2.1rem 2.9rem',
+              padding: '2.2rem 2rem 1.8rem 2rem',
               borderRadius: '26px',
             }}
           >
@@ -392,22 +395,22 @@ export default function SpatialShowcase({ revealed }) {
               “
             </span>
             <h1 style={{ margin: 0, lineHeight: 1.25, fontWeight: 400 }}>
-              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.3rem, 7.2vw, 6.2rem)', color: '#F0CA5A', textShadow: '0 4px 24px rgba(0,0,0,0.75)', paddingRight: '6px' }}>
+              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.1rem, 7.2vw, 6.2rem)', color: '#F0CA5A', textShadow: '0 4px 24px rgba(0,0,0,0.75)', paddingRight: '6px' }}>
                 Flavour
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
                 , that comes{' '}
               </span>
-              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.3rem, 4.6vw, 3.8rem)', color: '#FFFFFF' }}>
+              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.2rem, 4.6vw, 3.8rem)', color: '#FFFFFF' }}>
                 Alive{' '}
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.25rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
                 After{' '}
               </span>
               <span
                 style={{
                   fontFamily: "'Great Vibes', cursive",
-                  fontSize: 'clamp(3.2rem, 7vw, 6rem)',
+                  fontSize: 'clamp(3rem, 7vw, 6rem)',
                   background: 'linear-gradient(180deg, #FFF8E6 0%, #F0CA5A 58%, #C99A27 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -424,11 +427,11 @@ export default function SpatialShowcase({ revealed }) {
               — Waqar Foodies
             </div>
           </blockquote>
-          <div style={{ marginTop: '1.8rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>↓</div>
+          <div style={{ marginTop: '1.4rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>↓</div>
         </motion.div>
       </section>
 
-      {/* Room (0, 1): Burger Prep Full-Screen Showcase with Frosted Glass Side Cards */}
+      {/* Room (0, 1): Burger Prep Full-Screen Showcase */}
       <section
         style={{
           ...roomStyle(1),
@@ -448,7 +451,7 @@ export default function SpatialShowcase({ revealed }) {
             playsInline
             preload="auto"
             style={{
-              height: 'min(92dvh, 92vw)',
+              height: 'min(82dvh, 88vw)',
               width: 'auto',
               maxWidth: '100vw',
               objectFit: 'contain',
@@ -459,26 +462,13 @@ export default function SpatialShowcase({ revealed }) {
           />
         </div>
 
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 4,
-            width: '100%',
-            maxWidth: '1380px',
-            padding: '72px 3.5vw 0 3.5vw',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            alignItems: 'center',
-            gap: '2rem',
-            pointerEvents: 'none',
-          }}
-        >
+        <div className="wf-craft-grid">
           <motion.div
             key={`left-${videoStep}`}
             initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="wf-glass"
+            className="wf-glass wf-craft-side-card"
             style={{
               padding: '1.35rem 1.55rem',
               borderRadius: '20px',
@@ -487,32 +477,32 @@ export default function SpatialShowcase({ revealed }) {
             <div style={{ fontSize: '0.76rem', letterSpacing: '2.2px', textTransform: 'uppercase', color: '#F0CA5A', marginBottom: '0.45rem', fontWeight: 600 }}>
               {currentSec.source}
             </div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.45rem, 2.8vw, 2.6rem)', margin: 0, color: '#F5EFE6', lineHeight: 1.18 }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.25rem, 2.8vw, 2.6rem)', margin: 0, color: '#F5EFE6', lineHeight: 1.18 }}>
               {currentSec.sub}
             </h2>
           </motion.div>
 
-          <div style={{ minHeight: '220px' }} />
+          <div className="wf-craft-spacer" style={{ minHeight: '220px' }} />
 
           <motion.div
             key={`right-${videoStep}`}
             initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="wf-glass"
+            className="wf-glass wf-craft-side-card"
             style={{
               textAlign: 'right',
               padding: '1.35rem 1.55rem',
               borderRadius: '20px',
             }}
           >
-            <p style={{ color: '#F5EFE6', fontSize: 'clamp(0.9rem, 1.25vw, 1.12rem)', lineHeight: 1.65, margin: 0 }}>
+            <p style={{ color: '#F5EFE6', fontSize: 'clamp(0.86rem, 1.25vw, 1.12rem)', lineHeight: 1.6, margin: 0 }}>
               {currentSec.body}
             </p>
           </motion.div>
         </div>
 
-        <div style={{ position: 'absolute', right: '16px', top: '54%', transform: 'translateY(-50%)', zIndex: 6, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ position: 'absolute', right: '14px', top: '54%', transform: 'translateY(-50%)', zIndex: 6, display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {VIDEO_SECTIONS.map((_, idx) => (
             <div
               key={idx}
@@ -531,18 +521,9 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 1): Signatures Spotlight (inherits .wf-card frosted glassmorphism) */}
-      <section
-        style={{
-          ...roomStyle(2),
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '96px 24px 54px 24px',
-        }}
-      >
-        <div style={{ maxWidth: '820px', width: '100%', textAlign: 'center' }}>
+      {/* Room (1, 1): Signatures Spotlight */}
+      <section ref={room2Ref} className="wf-room-section" style={roomStyle(2)}>
+        <div className="wf-room-inner" style={{ maxWidth: '820px', textAlign: 'center' }}>
           <h2 className="wf-section-title">
             Crafted For <span>Tonight</span>
           </h2>
@@ -561,7 +542,7 @@ export default function SpatialShowcase({ revealed }) {
             </span>
           </p>
 
-          <div className="wf-menu-grid" style={{ textAlign: 'left', marginBottom: '1.8rem' }}>
+          <div className="wf-menu-grid" style={{ textAlign: 'left', marginBottom: '1.6rem' }}>
             <div className="wf-card">
               <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.45rem', fontWeight: 700 }}>
                 Tower Burger
@@ -593,17 +574,8 @@ export default function SpatialShowcase({ revealed }) {
       </section>
 
       {/* Room (1, 2) Background Layer: Voices of our Regulars */}
-      <section
-        style={{
-          ...roomStyle(3),
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '96px 24px 54px 24px',
-        }}
-      >
-        <div style={{ width: '100%', maxWidth: '780px' }}>
+      <section ref={room3Ref} className="wf-room-section" style={roomStyle(3)}>
+        <div className="wf-room-inner" style={{ maxWidth: '780px' }}>
           <h2 className="wf-section-title" style={{ marginBottom: '1.5rem' }}>
             Voices of our <span>Regulars</span>
           </h2>
@@ -612,19 +584,8 @@ export default function SpatialShowcase({ revealed }) {
       </section>
 
       {/* Room (1, 2) Foreground Depth Layer: Submit Review */}
-      <section
-        ref={reviewPanelRef}
-        style={{
-          ...roomStyle(4),
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '104px 24px 64px 24px',
-          overflowY: 'auto',
-        }}
-      >
-        <div style={{ width: '100%' }}>
+      <section ref={room4Ref} className="wf-room-section" style={roomStyle(4)}>
+        <div className="wf-room-inner">
           <ReviewForm />
         </div>
       </section>
@@ -633,8 +594,8 @@ export default function SpatialShowcase({ revealed }) {
       <div
         style={{
           position: 'fixed',
-          bottom: '18px',
-          left: '22px',
+          bottom: '14px',
+          left: '16px',
           zIndex: 950,
           display: 'flex',
           alignItems: 'center',
@@ -644,7 +605,7 @@ export default function SpatialShowcase({ revealed }) {
           WebkitBackdropFilter: 'blur(22px) saturate(160%)',
           border: '1px solid rgba(255, 246, 220, 0.24)',
           borderRadius: '16px',
-          padding: '8px 14px',
+          padding: '7px 12px',
           boxShadow: '0 14px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
         }}
       >
@@ -678,10 +639,10 @@ export default function SpatialShowcase({ revealed }) {
           ))}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
-          <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#F5EFE6', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#F5EFE6', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
             {target.title}
           </span>
-          <span style={{ fontSize: '0.74rem', color: '#F0CA5A', letterSpacing: '0.8px' }}>
+          <span style={{ fontSize: '0.72rem', color: '#F0CA5A', letterSpacing: '0.8px' }}>
             {target.dir}
           </span>
         </div>
