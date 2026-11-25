@@ -3,18 +3,22 @@
   --wf-surface: #1a1917;
   --wf-surface-2: #22201c;
   --wf-cream: #f5efe6;
-  --wf-cream-muted: #cfc4b4;
+  --wf-cream-muted: #e0d6c6;
   --wf-gold: #d4af37;
   --wf-gold-bright: #f0ca5a;
-  --wf-border: rgba(240, 202, 90, 0.26);
+  --wf-border: rgba(255, 246, 220, 0.22);
   --wf-glass-bg: linear-gradient(
-    145deg,
-    rgba(28, 25, 19, 0.54) 0%,
-    rgba(14, 13, 10, 0.42) 100%
+    135deg,
+    rgba(255, 250, 236, 0.11) 0%,
+    rgba(255, 248, 228, 0.035) 50%,
+    rgba(255, 235, 180, 0.075) 100%
   );
+  --wf-glass-blur: blur(24px) saturate(165%);
   --wf-glass-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.48),
-    inset 0 1px 0 rgba(255, 244, 214, 0.16);
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.34),
+    inset 1px 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(255, 215, 110, 0.08);
 }
 
 * {
@@ -55,21 +59,21 @@ button {
   cursor: pointer;
 }
 
-/* Glassmorphic Navbar */
+/* Frosted Glassmorphic Navbar */
 .wf-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(16, 14, 11, 0.62);
-  backdrop-filter: blur(14px) saturate(135%);
-  -webkit-backdrop-filter: blur(14px) saturate(135%);
-  border-bottom: 1px solid rgba(240, 202, 90, 0.24);
+  background: linear-gradient(180deg, rgba(255, 250, 236, 0.08), rgba(14, 13, 10, 0.35));
+  backdrop-filter: blur(22px) saturate(155%);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  border-bottom: 1px solid rgba(255, 246, 220, 0.18);
   padding: 0.65rem 2.2rem;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.42),
-    inset 0 -1px 0 rgba(255, 244, 214, 0.08);
+    0 12px 36px rgba(0, 0, 0, 0.38),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .wf-navbar-inner {
@@ -99,9 +103,9 @@ button {
 .wf-brand-name {
   font-family: 'Lobster', cursive;
   font-size: clamp(1.45rem, 2.2vw, 2.15rem);
-  color: var(--wf-gold);
+  color: var(--wf-gold-bright);
   letter-spacing: 0.5px;
-  text-shadow: 0 2px 16px rgba(212, 175, 55, 0.28);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.65);
   white-space: nowrap;
 }
 
@@ -121,28 +125,28 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(36, 32, 25, 0.72), rgba(20, 18, 14, 0.68));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(135deg, rgba(255, 250, 236, 0.1), rgba(255, 248, 228, 0.03));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: var(--wf-cream);
-  border: 1px solid var(--wf-border);
+  border: 1px solid rgba(255, 246, 220, 0.24);
   border-radius: 999px;
   padding: 0.52rem 1.15rem;
   font-weight: 600;
   font-size: 0.92rem;
   white-space: nowrap;
-  box-shadow: inset 0 1px 0 rgba(255, 244, 214, 0.12);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22);
   transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .wf-btn:hover {
-  background: linear-gradient(135deg, rgba(52, 45, 32, 0.85), rgba(30, 26, 19, 0.82));
-  border-color: var(--wf-gold-bright);
-  color: #fff6e5;
+  background: linear-gradient(135deg, rgba(255, 246, 214, 0.2), rgba(255, 235, 175, 0.08));
+  border-color: rgba(255, 245, 210, 0.55);
+  color: #ffffff;
   filter: brightness(1.16);
   box-shadow:
     0 0 22px rgba(240, 202, 90, 0.36),
-    inset 0 1px 0 rgba(255, 244, 214, 0.22);
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
   transform: translateY(-1px);
 }
 
@@ -287,19 +291,23 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(36, 32, 25, 0.78), rgba(20, 18, 14, 0.72));
-  border: 1px solid rgba(212, 175, 55, 0.48);
+  background: linear-gradient(135deg, rgba(255, 250, 236, 0.12), rgba(255, 248, 228, 0.04));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 246, 220, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 1px 0 rgba(255, 244, 214, 0.14);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.26);
   transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .wf-bag-btn:hover {
   border-color: var(--wf-gold-bright);
   filter: brightness(1.16);
-  box-shadow: 0 0 22px rgba(240, 202, 90, 0.4);
+  box-shadow:
+    0 0 22px rgba(240, 202, 90, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.38);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -335,15 +343,15 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   top: 58px;
   right: 0;
   width: min(360px, 90vw);
-  background: linear-gradient(155deg, rgba(28, 25, 20, 0.74), rgba(16, 14, 11, 0.68));
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(240, 202, 90, 0.36);
-  border-radius: 18px;
-  padding: 1.15rem;
+  background: linear-gradient(145deg, rgba(35, 31, 24, 0.56), rgba(14, 13, 10, 0.48));
+  backdrop-filter: blur(26px) saturate(165%);
+  -webkit-backdrop-filter: blur(26px) saturate(165%);
+  border: 1px solid rgba(255, 246, 220, 0.26);
+  border-radius: 20px;
+  padding: 1.2rem;
   box-shadow:
-    0 22px 55px rgba(0, 0, 0, 0.75),
-    inset 0 1px 0 rgba(255, 244, 214, 0.16);
+    0 24px 60px rgba(0, 0, 0, 0.72),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
   transform-origin: top right;
   z-index: 2000;
 }
@@ -354,7 +362,7 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   justify-content: space-between;
   gap: 8px;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.14);
+  border-bottom: 1px solid rgba(255, 246, 220, 0.14);
 }
 
 .wf-qty-controls {
@@ -369,9 +377,9 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: rgba(27, 25, 21, 0.75);
+  background: rgba(255, 250, 236, 0.09);
   color: var(--wf-cream);
-  border: 1px solid var(--wf-border);
+  border: 1px solid rgba(255, 246, 220, 0.22);
   font-size: 1.05rem;
   font-weight: 700;
   display: inline-flex;
@@ -400,7 +408,7 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   color: var(--wf-cream);
   text-align: center;
   margin: 0 0 0.35rem 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.72);
 }
 
 .wf-section-title span {
@@ -414,41 +422,53 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   color: var(--wf-cream-muted);
   font-size: 0.98rem;
   margin: 0 0 1.6rem 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 
-/* Frosted Smoked-Glass Container Card */
+/* ============================================================================
+   Reference-Style Frosted Crystal Glass Container (.wf-card & .wf-glass)
+   ============================================================================ */
 .wf-card,
 .wf-glass {
   background: var(--wf-glass-bg);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: var(--wf-glass-blur);
+  -webkit-backdrop-filter: var(--wf-glass-blur);
   border: 1px solid var(--wf-border);
-  border-radius: 22px;
-  padding: 1.6rem;
+  border-radius: 24px;
+  padding: 1.65rem;
   box-shadow: var(--wf-glass-shadow);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
 }
 
 .wf-input,
 .wf-textarea {
   width: 100%;
-  background: rgba(20, 18, 14, 0.62);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 250, 236, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--wf-cream);
-  border: 1px solid rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(255, 246, 220, 0.22);
   border-radius: 12px;
   padding: 0.72rem 0.95rem;
   font-family: inherit;
   font-size: 0.95rem;
   outline: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14);
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.wf-input::placeholder,
+.wf-textarea::placeholder {
+  color: rgba(245, 239, 230, 0.48);
 }
 
 .wf-input:focus,
 .wf-textarea:focus {
-  background: rgba(25, 22, 17, 0.78);
-  border-color: var(--wf-gold);
-  box-shadow: 0 0 0 1px var(--wf-gold);
+  background: rgba(255, 250, 236, 0.11);
+  border-color: var(--wf-gold-bright);
+  box-shadow:
+    0 0 0 1px var(--wf-gold-bright),
+    inset 0 1px 1px rgba(255, 255, 255, 0.24);
 }
 
 .wf-label {
@@ -460,37 +480,39 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 }
 
 .wf-alert-err {
-  background: rgba(185, 56, 56, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(220, 80, 80, 0.55);
-  color: #ffd6d6;
+  background: rgba(185, 56, 56, 0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(235, 110, 110, 0.55);
+  color: #ffe2e2;
   border-radius: 14px;
   padding: 0.85rem 1rem;
   font-size: 0.9rem;
   margin-bottom: 1rem;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.16);
 }
 
 .wf-alert-ok {
-  background: rgba(212, 175, 55, 0.16);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--wf-gold);
+  background: rgba(255, 246, 214, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(240, 202, 90, 0.5);
   color: var(--wf-cream);
   border-radius: 14px;
   padding: 0.85rem 1rem;
   font-size: 0.92rem;
   margin-bottom: 1rem;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
-/* Modal Backdrop & Glassmorphic Dialog */
+/* Modal Backdrop & Frosted Glass Dialog */
 .wf-modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 50000;
-  background: rgba(6, 6, 5, 0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(6, 6, 5, 0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -502,15 +524,16 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   max-width: 620px;
   max-height: 90dvh;
   overflow-y: auto;
-  background: linear-gradient(155deg, rgba(28, 25, 20, 0.78) 0%, rgba(16, 14, 11, 0.74) 100%);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(240, 202, 90, 0.38);
-  border-radius: 22px;
-  padding: 1.6rem 1.8rem;
+  background: linear-gradient(145deg, rgba(34, 30, 23, 0.64) 0%, rgba(16, 14, 11, 0.56) 100%);
+  backdrop-filter: blur(26px) saturate(165%);
+  -webkit-backdrop-filter: blur(26px) saturate(165%);
+  border: 1px solid rgba(255, 246, 220, 0.28);
+  border-radius: 24px;
+  padding: 1.7rem 1.85rem;
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.85),
-    inset 0 1px 0 rgba(255, 244, 214, 0.18);
+    0 30px 90px rgba(0, 0, 0, 0.82),
+    inset 0 1px 1px rgba(255, 255, 255, 0.34),
+    inset 1px 0 1px rgba(255, 255, 255, 0.14);
   position: relative;
 }
 
@@ -519,7 +542,7 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   top: 16px;
   right: 16px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--wf-border);
+  border: 1px solid rgba(255, 246, 220, 0.24);
   color: var(--wf-cream);
   width: 34px;
   height: 34px;
@@ -547,14 +570,14 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 .wf-menu-placeholder {
   height: 230px;
   border-radius: 14px;
-  background: radial-gradient(circle at 50% 35%, rgba(212, 175, 55, 0.16), rgba(16, 15, 13, 0.55) 75%);
-  border: 1px dashed rgba(212, 175, 55, 0.35);
+  background: radial-gradient(circle at 50% 35%, rgba(212, 175, 55, 0.16), rgba(255, 250, 236, 0.04) 75%);
+  border: 1px dashed rgba(255, 246, 220, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Lobster', cursive;
   font-size: 2rem;
-  color: var(--wf-gold);
+  color: var(--wf-gold-bright);
 }
 
 /* ============================================================================
@@ -583,14 +606,12 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 .wf-table-wrap {
   width: 100%;
   overflow-x: auto;
-  background: linear-gradient(155deg, rgba(24, 22, 18, 0.72), rgba(15, 14, 11, 0.68));
-  backdrop-filter: blur(12px) saturate(130%);
-  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  background: var(--wf-glass-bg);
+  backdrop-filter: var(--wf-glass-blur);
+  -webkit-backdrop-filter: var(--wf-glass-blur);
   border: 1px solid var(--wf-border);
-  border-radius: 18px;
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 244, 214, 0.14);
+  border-radius: 22px;
+  box-shadow: var(--wf-glass-shadow);
 }
 
 .wf-admin-table {
@@ -601,8 +622,8 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 }
 
 .wf-admin-table thead {
-  background: linear-gradient(135deg, rgba(38, 33, 25, 0.8), rgba(24, 21, 16, 0.78));
-  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(255, 246, 214, 0.08);
+  border-bottom: 1px solid rgba(255, 246, 220, 0.22);
 }
 
 .wf-admin-table th {
@@ -616,14 +637,14 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 
 .wf-admin-table td {
   padding: 0.95rem 0.9rem;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+  border-bottom: 1px solid rgba(255, 246, 220, 0.1);
   color: var(--wf-cream);
   vertical-align: top;
   line-height: 1.45;
 }
 
 .wf-admin-table tbody tr:hover {
-  background: rgba(212, 175, 55, 0.06);
+  background: rgba(255, 246, 214, 0.05);
 }
 
 .wf-status-cell {
@@ -640,7 +661,7 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   font-size: 0.78rem;
   font-weight: 700;
   background: rgba(212, 175, 55, 0.16);
-  border: 1px solid rgba(212, 175, 55, 0.45);
+  border: 1px solid rgba(240, 202, 90, 0.45);
   color: var(--wf-gold-bright);
 }
 
