@@ -46,13 +46,15 @@ export default function TestimonialsBox() {
       top: '50%',
       width: '86%',
       maxWidth: '580px',
-      padding: '1.3rem 1.6rem',
-      borderRadius: '18px',
-      background: 'linear-gradient(145deg, rgba(32, 29, 23, 0.72), rgba(18, 16, 13, 0.6))',
-      border: '1px solid rgba(240, 202, 90, 0.22)',
+      padding: '1.35rem 1.65rem',
+      borderRadius: '20px',
+      background:
+        'linear-gradient(135deg, rgba(255, 250, 236, 0.12) 0%, rgba(255, 248, 228, 0.04) 55%, rgba(255, 235, 180, 0.08) 100%)',
+      border: '1px solid rgba(255, 246, 220, 0.22)',
       transition: 'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, filter 0.65s ease',
       willChange: 'transform, opacity',
       cursor: 'pointer',
+      textShadow: '0 2px 12px rgba(0, 0, 0, 0.78)',
     };
 
     if (pos === 0) {
@@ -62,9 +64,9 @@ export default function TestimonialsBox() {
         filter: 'blur(0px)',
         opacity: 1,
         zIndex: 5,
-        borderColor: 'rgba(240, 202, 90, 0.65)',
+        borderColor: 'rgba(255, 246, 220, 0.36)',
         boxShadow:
-          '0 18px 42px rgba(0,0,0,0.6), 0 0 24px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,244,214,0.18)',
+          '0 22px 50px rgba(0,0,0,0.52), inset 0 1px 1px rgba(255,255,255,0.36), inset 1px 0 1px rgba(255,255,255,0.14)',
       };
     }
     if (pos === -1) {
@@ -144,12 +146,12 @@ export default function TestimonialsBox() {
         maxWidth: '740px',
         margin: '0 auto',
         overflow: 'hidden',
-        borderRadius: '24px',
-        background: 'linear-gradient(150deg, rgba(26, 23, 18, 0.46), rgba(14, 13, 10, 0.34))',
-        backdropFilter: 'blur(12px) saturate(135%)',
-        WebkitBackdropFilter: 'blur(12px) saturate(135%)',
-        border: '1px solid rgba(240, 202, 90, 0.24)',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 244, 214, 0.14)',
+        borderRadius: '26px',
+        background: 'linear-gradient(135deg, rgba(255, 250, 236, 0.08), rgba(255, 248, 228, 0.02))',
+        backdropFilter: 'blur(22px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(22px) saturate(160%)',
+        border: '1px solid rgba(255, 246, 220, 0.22)',
+        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
         perspective: '900px',
         userSelect: 'none',
         cursor: 'ns-resize',
@@ -177,11 +179,11 @@ export default function TestimonialsBox() {
             <div style={{ color: '#F5EFE6', fontSize: '1rem', lineHeight: 1.55, fontStyle: 'italic', marginBottom: '0.7rem' }}>
               “{rev.text}”
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#D4AF37', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#F0CA5A', fontWeight: 700 }}>
               <span>— {rev.name}</span>
               <span style={{ display: 'inline-flex', gap: '3px' }}>
                 {Array.from({ length: rev.stars || 5 }).map((_, sIdx) => (
-                  <svg key={sIdx} width="14" height="14" viewBox="0 0 24 24" fill="#D4AF37">
+                  <svg key={sIdx} width="14" height="14" viewBox="0 0 24 24" fill="#F0CA5A">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 ))}
