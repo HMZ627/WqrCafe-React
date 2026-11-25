@@ -109,12 +109,10 @@ export default function AdminPage() {
     }
   }, []);
 
-  // Initial check
   useEffect(() => {
     fetchOrders({ silent: false });
   }, [fetchOrders]);
 
-  // Automatic background refresh when authenticated + tab visibility/focus + BroadcastChannel
   useEffect(() => {
     if (!isAuthed) return undefined;
 
@@ -140,7 +138,7 @@ export default function AdminPage() {
         }
       };
     } catch {
-      // BroadcastChannel not supported in older browsers; 4s interval still handles updates
+      // BroadcastChannel not supported; 4s interval still handles updates
     }
 
     return () => {
@@ -359,6 +357,7 @@ export default function AdminPage() {
         <input
           type="text"
           className="wf-input"
+          maxLength={120}
           placeholder="Search orders by Order No., Name, Item, Address, Phone, or Payment method..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
