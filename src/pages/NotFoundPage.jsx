@@ -20,7 +20,6 @@ export default function NotFoundPage() {
           margin: '1rem auto',
           padding: '3rem 2rem',
           textAlign: 'center',
-          background: 'radial-gradient(circle at 50% 25%, rgba(212,175,55,0.14), #151412 76%)',
         }}
       >
         <div
@@ -53,7 +52,7 @@ export default function NotFoundPage() {
         <div
           style={{
             display: 'inline-block',
-            background: 'rgba(212,175,55,0.1)',
+            background: 'rgba(212,175,55,0.12)',
             border: '1px solid rgba(212,175,55,0.35)',
             borderRadius: '999px',
             padding: '0.3rem 1rem',
