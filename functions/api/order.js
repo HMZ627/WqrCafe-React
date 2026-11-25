@@ -16,14 +16,9 @@ const MENU_CATALOG = {
   paratha_roll: { name: 'Chicken Paratha Roll', price: 350 },
 };
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, ctx }) {
   if (!requireSameOrigin(request)) {
     return jsonResponse({ error: 'Forbidden' }, 403);
-  }
-
-  const rl = enforceRateLimit(request, 'order', 1, 15000);
-  if (!rl.allowed) {
-    return jsonResponse({ error: `Please wait ${rl.retryAfterSec}s before placing another order.` }, 429);
   }
 
   const parsed = await parseSafeOrderForm(request);
@@ -85,6 +80,12 @@ export async function onRequestPost({ request, env }) {
       return jsonResponse({ error: errors.join(' ') }, 400);
     }
 
+    // Rate-limit only valid submissions (allows 2 rapid legitimate orders per 15s)
+    const rl = enforceRateLimit(request, 'order', 2, 15000);
+    if (!rl.allowed) {
+      return jsonResponse({ error: `Please wait ${rl.retryAfterSec}s before placing another order.` }, 429);
+    }
+
     const orderId = generateOrderId();
     const itemsSummary = verifiedItems
       .map((i) => `• **${i.name}** x ${i.qty} — \`PKR ${(i.price * i.qty).toLocaleString()}/-\``)
@@ -114,25 +115,32 @@ export async function onRequestPost({ request, env }) {
       embed.image = { url: `attachment://${fileInfo.filename}` };
     }
 
-    const [discordResult] = await Promise.allSettled([
-      sendDiscordEmbed(
-        env.DISCORD_ORDER_WEBHOOK,
-        { username: 'Waqar Foodies Orders', embeds: [embed] },
-        fileInfo
-      ),
-      appendOrderToSheet(env, {
-        orderId,
-        name,
-        address,
-        orderSummary: sheetOrderText,
-        phone,
-        paymentMethod,
-      }).catch(() => false),
-    ]);
+    // Write to Google Sheets asynchronously in background so customer checkout is instant
+    const sheetTask = appendOrderToSheet(env, {
+      orderId,
+      name,
+      address,
+      orderSummary: sheetOrderText,
+      phone,
+      paymentMethod,
+    }).catch(() => false);
 
-    const discordSent = discordResult.status === 'fulfilled' && discordResult.value;
+    if (ctx && typeof ctx.waitUntil === 'function') {
+      ctx.waitUntil(sheetTask);
+    }
+
+    const discordSent = await sendDiscordEmbed(
+      env.DISCORD_ORDER_WEBHOOK,
+      { username: 'Waqar Foodies Orders', embeds: [embed] },
+      fileInfo
+    );
+
     if (!discordSent) {
       return jsonResponse({ error: 'Unable to submit order right now. Please try again shortly.' }, 502);
+    }
+
+    if (!ctx || typeof ctx.waitUntil !== 'function') {
+      await sheetTask;
     }
 
     return jsonResponse({ ok: true, orderId });
