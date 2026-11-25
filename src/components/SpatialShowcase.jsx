@@ -160,7 +160,6 @@ export default function SpatialShowcase({ revealed }) {
 
   function goToVideoStep(nextIdx) {
     if (nextIdx < 0 || nextIdx >= VIDEO_SECTIONS.length || nextIdx === videoStepRef.current) return;
-    // Short debounce only so user can scroll to next scene before current one finishes
     setBusyFor(260);
     setVideoStep(nextIdx);
     playPartSmoothly(nextIdx);
@@ -173,7 +172,6 @@ export default function SpatialShowcase({ revealed }) {
     setActiveRoom(nextRoom);
 
     if (nextRoom === 1) {
-      // Lock only during room slide, never waiting for full video clip
       setBusyFor(700);
       const targetStep = prev === 0 ? 0 : videoStepRef.current;
       setVideoStep(targetStep);
@@ -297,7 +295,6 @@ export default function SpatialShowcase({ revealed }) {
     const dx = (r.camCol - target.camCol) * 100;
     const dy = (r.camRow - target.camRow) * 100;
 
-    // Depth-stacked Testimonials (idx 3) <-> Submit Review (idx 4)
     if (idx === 3) {
       const inBgBehindReview = activeRoom === 4;
       const isVisible = activeRoom === 3 || activeRoom === 4 || prevRoomRef.current === 3;
@@ -323,7 +320,6 @@ export default function SpatialShowcase({ revealed }) {
     if (idx === 4) {
       const isActive = activeRoom === 4;
       const isVisible = isActive || prevRoomRef.current === 4;
-      // Zooms in + blurs out behind the screen when scrolling back up; blurs in to focus when active
       return {
         position: 'fixed',
         top: 0,
@@ -363,7 +359,7 @@ export default function SpatialShowcase({ revealed }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: 'transparent' }}>
-      {/* Room (0, 0): Sleek Curvy Quote */}
+      {/* Room (0, 0): Sleek Curvy Quote inside Frosted Glassmorphism Card */}
       <section
         style={{
           ...roomStyle(0),
@@ -385,13 +381,12 @@ export default function SpatialShowcase({ revealed }) {
           style={{ textAlign: 'center', maxWidth: '960px' }}
         >
           <blockquote
+            className="wf-glass"
             style={{
               margin: 0,
-              padding: '2.2rem 2.4rem 1.8rem 2.4rem',
-              borderTop: '1px solid rgba(212,175,55,0.4)',
-              borderBottom: '1px solid rgba(212,175,55,0.4)',
-              background: 'radial-gradient(circle at 50% 50%, rgba(12,11,9,0.72), rgba(12,11,9,0.25) 75%)',
-              borderRadius: '18px',
+              padding: '2.4rem 2.8rem 2rem 2.8rem',
+              background: 'linear-gradient(145deg, rgba(28, 25, 19, 0.48), rgba(14, 13, 10, 0.34))',
+              borderRadius: '24px',
             }}
           >
             <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(212,175,55,0.65)', display: 'block', textAlign: 'left', lineHeight: 0.45, marginBottom: '0.7rem' }}>
@@ -434,7 +429,7 @@ export default function SpatialShowcase({ revealed }) {
         </motion.div>
       </section>
 
-      {/* Room (0, 1): Burger Prep Full-Screen Showcase */}
+      {/* Room (0, 1): Burger Prep Full-Screen Showcase with Glassmorphic Side Panels */}
       <section
         style={{
           ...roomStyle(1),
@@ -484,11 +479,12 @@ export default function SpatialShowcase({ revealed }) {
             initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            className="wf-glass"
             style={{
-              padding: '1.2rem 1.4rem',
-              borderLeft: '2px solid rgba(212,175,55,0.75)',
-              background: 'linear-gradient(90deg, rgba(12,11,9,0.78), transparent)',
-              borderRadius: '0 14px 14px 0',
+              padding: '1.3rem 1.5rem',
+              background: 'linear-gradient(135deg, rgba(24, 21, 16, 0.54), rgba(14, 12, 9, 0.36))',
+              borderLeft: '2.5px solid rgba(240, 202, 90, 0.8)',
+              borderRadius: '18px',
             }}
           >
             <div style={{ fontSize: '0.76rem', letterSpacing: '2.2px', textTransform: 'uppercase', color: '#F0CA5A', marginBottom: '0.45rem', fontWeight: 600 }}>
@@ -506,12 +502,13 @@ export default function SpatialShowcase({ revealed }) {
             initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            className="wf-glass"
             style={{
               textAlign: 'right',
-              padding: '1.2rem 1.4rem',
-              borderRight: '2px solid rgba(212,175,55,0.75)',
-              background: 'linear-gradient(-90deg, rgba(12,11,9,0.78), transparent)',
-              borderRadius: '14px 0 0 14px',
+              padding: '1.3rem 1.5rem',
+              background: 'linear-gradient(225deg, rgba(24, 21, 16, 0.54), rgba(14, 12, 9, 0.36))',
+              borderRight: '2.5px solid rgba(240, 202, 90, 0.8)',
+              borderRadius: '18px',
             }}
           >
             <p style={{ color: '#F5EFE6', fontSize: 'clamp(0.9rem, 1.25vw, 1.12rem)', lineHeight: 1.65, margin: 0 }}>
@@ -600,7 +597,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 2) Background Layer: Voices of our Regulars (stays blurred behind Review) */}
+      {/* Room (1, 2) Background Layer: Voices of our Regulars */}
       <section
         style={{
           ...roomStyle(3),
@@ -619,7 +616,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 2) Foreground Depth Layer: Submit Review (blurs in over Testimonials; zooms in & blurs out on scroll up) */}
+      {/* Room (1, 2) Foreground Depth Layer: Submit Review */}
       <section
         ref={reviewPanelRef}
         style={{
@@ -637,7 +634,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Lower-Left 2D Spatial Mini-Map HUD */}
+      {/* Lower-Left Glassmorphic 2D Spatial Mini-Map HUD */}
       <div
         style={{
           position: 'fixed',
@@ -647,11 +644,13 @@ export default function SpatialShowcase({ revealed }) {
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          background: 'rgba(18, 17, 15, 0.92)',
-          border: '1px solid rgba(212, 175, 55, 0.34)',
+          background: 'linear-gradient(145deg, rgba(26, 23, 18, 0.58), rgba(14, 13, 10, 0.5))',
+          backdropFilter: 'blur(12px) saturate(135%)',
+          WebkitBackdropFilter: 'blur(12px) saturate(135%)',
+          border: '1px solid rgba(240, 202, 90, 0.3)',
           borderRadius: '16px',
           padding: '8px 14px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.55)',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 244, 214, 0.14)',
         }}
       >
         <div
