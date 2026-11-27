@@ -316,7 +316,7 @@ export default function SpatialShowcase({ revealed }) {
         width: '100vw',
         height: '100dvh',
         transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${inBgBehindReview ? 0.82 : 1})`,
-        filter: inBgBehindReview ? 'blur(12px)' : 'blur(0px)',
+        filter: inBgBehindReview ? 'blur(12px)' : 'none',
         opacity: inBgBehindReview ? 0.32 : 1,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: activeRoom === 3 ? 'auto' : 'none',
@@ -338,7 +338,7 @@ export default function SpatialShowcase({ revealed }) {
         width: '100vw',
         height: '100dvh',
         transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${isActive ? 1 : 1.18})`,
-        filter: isActive ? 'blur(0px)' : 'blur(18px)',
+        filter: isActive ? 'none' : 'blur(18px)',
         opacity: isActive ? 1 : 0,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: isActive ? 'auto' : 'none',
@@ -374,12 +374,8 @@ export default function SpatialShowcase({ revealed }) {
       <section className="wf-room-section" style={roomStyle(0)}>
         <motion.div
           className="wf-room-inner"
-          initial={{ opacity: 0, y: 24, filter: 'blur(12px)' }}
-          animate={
-            revealed
-              ? { opacity: 1, y: 0, filter: 'blur(0px)' }
-              : { opacity: 0, y: 24, filter: 'blur(12px)' }
-          }
+          initial={{ opacity: 0, y: 24 }}
+          animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1] }}
           style={{ textAlign: 'center', maxWidth: '960px' }}
         >
@@ -391,20 +387,61 @@ export default function SpatialShowcase({ revealed }) {
               borderRadius: '26px',
             }}
           >
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(255,246,220,0.55)', display: 'block', textAlign: 'left', lineHeight: 0.45, marginBottom: '0.7rem' }}>
+            <span
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: 'italic',
+                fontSize: 'clamp(3rem, 5.5vw, 5rem)',
+                color: 'rgba(255,246,220,0.55)',
+                display: 'block',
+                textAlign: 'left',
+                lineHeight: 0.45,
+                marginBottom: '0.7rem',
+              }}
+            >
               “
             </span>
             <h1 style={{ margin: 0, lineHeight: 1.25, fontWeight: 400 }}>
-              <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: 'clamp(3.1rem, 7.2vw, 6.2rem)', color: '#F0CA5A', textShadow: '0 4px 24px rgba(0,0,0,0.75)', paddingRight: '6px' }}>
+              <span
+                style={{
+                  fontFamily: "'Great Vibes', cursive",
+                  fontSize: 'clamp(3.1rem, 7.2vw, 6.2rem)',
+                  color: '#F0CA5A',
+                  textShadow: '0 4px 24px rgba(0,0,0,0.75)',
+                  paddingRight: '6px',
+                }}
+              >
                 Flavour
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
+              <span
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  color: '#F5EFE6',
+                }}
+              >
                 , that comes{' '}
               </span>
-              <span style={{ fontFamily: "'Parisienne', cursive", fontSize: 'clamp(2.2rem, 4.6vw, 3.8rem)', color: '#FFFFFF' }}>
+              <span
+                style={{
+                  fontFamily: "'Parisienne', cursive",
+                  fontSize: 'clamp(2.2rem, 4.6vw, 3.8rem)',
+                  color: '#FFFFFF',
+                }}
+              >
                 Alive{' '}
               </span>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)', fontStyle: 'italic', fontWeight: 300, color: '#F5EFE6' }}>
+              <span
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  color: '#F5EFE6',
+                }}
+              >
                 After{' '}
               </span>
               <span
@@ -420,14 +457,37 @@ export default function SpatialShowcase({ revealed }) {
                 Darkness
               </span>
             </h1>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: 'clamp(3rem, 5.5vw, 5rem)', color: 'rgba(255,246,220,0.55)', display: 'block', textAlign: 'right', lineHeight: 0.45, marginTop: '0.7rem' }}>
+            <span
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: 'italic',
+                fontSize: 'clamp(3rem, 5.5vw, 5rem)',
+                color: 'rgba(255,246,220,0.55)',
+                display: 'block',
+                textAlign: 'right',
+                lineHeight: 0.45,
+                marginTop: '0.7rem',
+              }}
+            >
               ”
             </span>
-            <div style={{ marginTop: '1.1rem', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', letterSpacing: '3.5px', textTransform: 'uppercase', color: '#F0CA5A', fontWeight: 600 }}>
+            <div
+              style={{
+                marginTop: '1.1rem',
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: 'italic',
+                letterSpacing: '3.5px',
+                textTransform: 'uppercase',
+                color: '#F0CA5A',
+                fontWeight: 600,
+              }}
+            >
               — Waqar Foodies
             </div>
           </blockquote>
-          <div style={{ marginTop: '1.4rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>↓</div>
+          <div style={{ marginTop: '1.4rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>
+            ↓
+          </div>
         </motion.div>
       </section>
 
@@ -436,14 +496,24 @@ export default function SpatialShowcase({ revealed }) {
         style={{
           ...roomStyle(1),
           background: currentSec.bg,
-          transition: 'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), background 1.1s cubic-bezier(0.22, 1, 0.36, 1)',
+          transition:
+            'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), background 1.1s cubic-bezier(0.22, 1, 0.36, 1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+          }}
+        >
           <video
             ref={videoRef}
             src="/static/burger_prep.mp4"
@@ -455,8 +525,10 @@ export default function SpatialShowcase({ revealed }) {
               width: 'auto',
               maxWidth: '100vw',
               objectFit: 'contain',
-              WebkitMaskImage: 'radial-gradient(ellipse 54% 68% at 50% 50%, #000 54%, rgba(0,0,0,0.45) 78%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse 54% 68% at 50% 50%, #000 54%, rgba(0,0,0,0.45) 78%, transparent 100%)',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 54% 68% at 50% 50%, #000 54%, rgba(0,0,0,0.45) 78%, transparent 100%)',
+              maskImage:
+                'radial-gradient(ellipse 54% 68% at 50% 50%, #000 54%, rgba(0,0,0,0.45) 78%, transparent 100%)',
               transition: 'opacity 0.16s ease',
             }}
           />
@@ -465,8 +537,8 @@ export default function SpatialShowcase({ revealed }) {
         <div className="wf-craft-grid">
           <motion.div
             key={`left-${videoStep}`}
-            initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="wf-glass wf-craft-side-card"
             style={{
@@ -474,10 +546,27 @@ export default function SpatialShowcase({ revealed }) {
               borderRadius: '20px',
             }}
           >
-            <div style={{ fontSize: '0.76rem', letterSpacing: '2.2px', textTransform: 'uppercase', color: '#F0CA5A', marginBottom: '0.45rem', fontWeight: 600 }}>
+            <div
+              style={{
+                fontSize: '0.76rem',
+                letterSpacing: '2.2px',
+                textTransform: 'uppercase',
+                color: '#F0CA5A',
+                marginBottom: '0.45rem',
+                fontWeight: 600,
+              }}
+            >
               {currentSec.source}
             </div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.25rem, 2.8vw, 2.6rem)', margin: 0, color: '#F5EFE6', lineHeight: 1.18 }}>
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 'clamp(1.25rem, 2.8vw, 2.6rem)',
+                margin: 0,
+                color: '#F5EFE6',
+                lineHeight: 1.18,
+              }}
+            >
               {currentSec.sub}
             </h2>
           </motion.div>
@@ -486,8 +575,8 @@ export default function SpatialShowcase({ revealed }) {
 
           <motion.div
             key={`right-${videoStep}`}
-            initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="wf-glass wf-craft-side-card"
             style={{
@@ -496,13 +585,31 @@ export default function SpatialShowcase({ revealed }) {
               borderRadius: '20px',
             }}
           >
-            <p style={{ color: '#F5EFE6', fontSize: 'clamp(0.86rem, 1.25vw, 1.12rem)', lineHeight: 1.6, margin: 0 }}>
+            <p
+              style={{
+                color: '#F5EFE6',
+                fontSize: 'clamp(0.86rem, 1.25vw, 1.12rem)',
+                lineHeight: 1.6,
+                margin: 0,
+              }}
+            >
               {currentSec.body}
             </p>
           </motion.div>
         </div>
 
-        <div style={{ position: 'absolute', right: '14px', top: '54%', transform: 'translateY(-50%)', zIndex: 6, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div
+          style={{
+            position: 'absolute',
+            right: '14px',
+            top: '54%',
+            transform: 'translateY(-50%)',
+            zIndex: 6,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
           {VIDEO_SECTIONS.map((_, idx) => (
             <div
               key={idx}
@@ -622,7 +729,15 @@ export default function SpatialShowcase({ revealed }) {
           ))}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#F5EFE6', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+          <span
+            style={{
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              color: '#F5EFE6',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+            }}
+          >
             {target.title}
           </span>
           <span style={{ fontSize: '0.72rem', color: '#F0CA5A', letterSpacing: '0.8px' }}>
