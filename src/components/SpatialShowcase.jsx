@@ -590,25 +590,8 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Lower-Left Glassmorphic 2D Spatial Mini-Map HUD */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '14px',
-          left: '16px',
-          zIndex: 950,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          background: 'linear-gradient(135deg, rgba(255, 250, 236, 0.11), rgba(255, 248, 228, 0.04))',
-          backdropFilter: 'blur(22px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(22px) saturate(160%)',
-          border: '1px solid rgba(255, 246, 220, 0.24)',
-          borderRadius: '16px',
-          padding: '7px 12px',
-          boxShadow: '0 14px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
-        }}
-      >
+      {/* Lower-Left Liquid Glass 2D Spatial Mini-Map HUD */}
+      <div className="wf-glass wf-hud-glass">
         <div
           style={{
             display: 'grid',
