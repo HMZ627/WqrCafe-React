@@ -7,30 +7,58 @@ import { onRequestPost as handleAdminLogout } from './functions/api/admin/logout
 import { onRequestGet as handleAdminOrders } from './functions/api/admin/orders.js';
 import { onRequestPost as handleAdminDispatch } from './functions/api/admin/dispatch.js';
 
-const CSP_HEADER = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: blob:",
-  "media-src 'self'",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join('; ');
+function createNonce() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) {
+    bin += String.fromCharCode(bytes[i]);
+  }
+  return btoa(bin);
+}
 
-function withSecurityHeaders(response, pathname, isHttps) {
+function buildCspHeader(nonce) {
+  return [
+    "default-src 'self'",
+    `script-src 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https:`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob:",
+    "media-src 'self'",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "require-trusted-types-for 'script'",
+    'trusted-types default',
+  ].join('; ');
+}
+
+class NonceInjector {
+  constructor(nonce) {
+    this.nonce = nonce;
+  }
+  element(el) {
+    el.setAttribute('nonce', this.nonce);
+  }
+}
+
+function withSecurityHeaders(response, pathname, isHttps, nonce) {
   const headers = new Headers(response.headers);
-  headers.set('Content-Security-Policy', CSP_HEADER);
+  headers.delete('Content-Length');
+  headers.set('Content-Security-Policy', buildCspHeader(nonce));
+  headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('X-Frame-Options', 'DENY');
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   if (isHttps) {
-    headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    headers.set(
+      'Strict-Transport-Security',
+      'max-age=63072000; includeSubDomains; preload'
+    );
   }
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/')) {
     headers.set('X-Robots-Tag', 'noindex, nofollow');
@@ -47,8 +75,8 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const isHttps = url.protocol === 'https:';
+    const nonce = createNonce();
 
-    // Block XML / XXE request content types outright
     const reqCt = (request.headers.get('Content-Type') || '').toLowerCase();
     if (reqCt.includes('xml')) {
       return withSecurityHeaders(
@@ -57,7 +85,8 @@ export default {
           headers: { 'Content-Type': 'application/json' },
         }),
         url.pathname,
-        isHttps
+        isHttps,
+        nonce
       );
     }
 
@@ -80,8 +109,14 @@ export default {
       response = await handleAdminDispatch({ request, env, ctx });
     } else {
       response = await env.ASSETS.fetch(request);
+      const resCt = (response.headers.get('Content-Type') || '').toLowerCase();
+      if (resCt.includes('text/html')) {
+        response = new HTMLRewriter()
+          .on('script', new NonceInjector(nonce))
+          .transform(response);
+      }
     }
 
-    return withSecurityHeaders(response, url.pathname, isHttps);
+    return withSecurityHeaders(response, url.pathname, isHttps, nonce);
   },
 };
