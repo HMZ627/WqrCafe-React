@@ -9,10 +9,10 @@ function buildLiquidEdgeMapUrl() {
   const img = ctx.createImageData(size, size);
   const data = img.data;
 
-  // Rounded-box SDF with steep convex bezel curve near the edges
+  // Rounded-box SDF: flat & sharp in center, strong curved lens stretch near edges
   const half = 0.5;
   const radius = 0.16;
-  const rimWidth = 0.22;
+  const rimWidth = 0.23;
 
   for (let y = 0; y < size; y++) {
     const v = (y + 0.5) / size;
@@ -48,10 +48,9 @@ function buildLiquidEdgeMapUrl() {
           ny = -Math.sign(py);
         }
 
-        // Convex squircle refraction slope: stretches & loops background along curved edges, flat in center
-        const t = insideDist / rimWidth; // 0 at border -> 1 at inner flat area
-        const edgeAntiAlias = Math.min(1, t / 0.06);
-        const lensSlope = Math.pow(1 - t, 1.8) * edgeAntiAlias;
+        const t = insideDist / rimWidth;
+        const edgeAntiAlias = Math.min(1, t / 0.045);
+        const lensSlope = Math.pow(1 - t, 1.65) * edgeAntiAlias;
 
         r = Math.round(128 + nx * 127 * lensSlope);
         g = Math.round(128 + ny * 127 * lensSlope);
@@ -118,29 +117,28 @@ export default function LiquidGlassFilter() {
             preserveAspectRatio="none"
             result="lensMap"
           />
-          <feGaussianBlur in="SourceGraphic" stdDeviation="0.0014" result="softBg" />
 
-          {/* R / G / B slightly offset scales create subtle optical prism fringing at curved edges */}
+          {/* Zero blur: keeps background particles sharp while stretching & fringing along curved edges */}
           <feDisplacementMap
-            in="softBg"
+            in="SourceGraphic"
             in2="lensMap"
-            scale="0.20"
+            scale="0.24"
             xChannelSelector="R"
             yChannelSelector="G"
             result="dispR"
           />
           <feDisplacementMap
-            in="softBg"
+            in="SourceGraphic"
             in2="lensMap"
-            scale="0.225"
+            scale="0.27"
             xChannelSelector="R"
             yChannelSelector="G"
             result="dispG"
           />
           <feDisplacementMap
-            in="softBg"
+            in="SourceGraphic"
             in2="lensMap"
-            scale="0.25"
+            scale="0.30"
             xChannelSelector="R"
             yChannelSelector="G"
             result="dispB"
