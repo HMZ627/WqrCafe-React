@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import GhostFibers from './components/GhostFibers';
+import LiquidGlassFilter from './components/LiquidGlassFilter';
 import Navbar from './components/Navbar';
 import CheckoutModal from './components/CheckoutModal';
 import ConfirmationModal from './components/ConfirmationModal';
@@ -17,6 +18,7 @@ export default function App() {
 
   return (
     <>
+      <LiquidGlassFilter />
       {!isAdmin && (
         <GhostFibers
           glowColor="#ffc204"
