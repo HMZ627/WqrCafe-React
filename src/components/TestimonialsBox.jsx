@@ -49,13 +49,13 @@ export default function TestimonialsBox() {
       padding: '1.35rem 1.65rem',
       borderRadius: '20px',
       background:
-        'linear-gradient(135deg, rgba(255, 250, 236, 0.12) 0%, rgba(255, 248, 228, 0.04) 55%, rgba(255, 235, 180, 0.08) 100%)',
-      border: '1px solid rgba(255, 246, 220, 0.22)',
+        'linear-gradient(135deg, rgba(255, 250, 236, 0.06) 0%, rgba(255, 248, 228, 0.015) 55%, rgba(255, 235, 180, 0.04) 100%)',
+      border: '1px solid rgba(255, 246, 220, 0.24)',
       transition:
         'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, filter 0.65s ease',
       willChange: 'transform, opacity',
       cursor: 'pointer',
-      textShadow: '0 2px 12px rgba(0, 0, 0, 0.78)',
+      textShadow: '0 2px 14px rgba(0, 0, 0, 0.92), 0 0 6px rgba(0, 0, 0, 0.85)',
     };
 
     if (pos === 0) {
@@ -65,16 +65,16 @@ export default function TestimonialsBox() {
         filter: 'blur(0px)',
         opacity: 1,
         zIndex: 5,
-        borderColor: 'rgba(255, 246, 220, 0.36)',
+        borderColor: 'rgba(255, 246, 220, 0.4)',
         boxShadow:
-          '0 22px 50px rgba(0,0,0,0.52), inset 0 1px 1px rgba(255,255,255,0.36), inset 1px 0 1px rgba(255,255,255,0.14)',
+          '0 22px 50px rgba(0,0,0,0.52), inset 0 1px 1px rgba(255,255,255,0.4), inset 1px 0 1px rgba(255,255,255,0.16)',
       };
     }
     if (pos === -1) {
       return {
         ...base,
         transform: 'translate(-50%, -138%) scale(0.86) rotateX(16deg) skewX(-1.5deg)',
-        filter: 'blur(2.5px)',
+        filter: 'blur(2px)',
         opacity: 0.45,
         zIndex: 3,
       };
@@ -83,7 +83,7 @@ export default function TestimonialsBox() {
       return {
         ...base,
         transform: 'translate(-50%, 38%) scale(0.86) rotateX(-16deg) skewX(1.5deg)',
-        filter: 'blur(2.5px)',
+        filter: 'blur(2px)',
         opacity: 0.45,
         zIndex: 3,
       };
@@ -92,7 +92,7 @@ export default function TestimonialsBox() {
       return {
         ...base,
         transform: 'translate(-50%, -215%) scale(0.74) rotateX(24deg)',
-        filter: 'blur(4px)',
+        filter: 'blur(3.5px)',
         opacity: 0.14,
         zIndex: 1,
       };
@@ -101,7 +101,7 @@ export default function TestimonialsBox() {
       return {
         ...base,
         transform: 'translate(-50%, 115%) scale(0.74) rotateX(-24deg)',
-        filter: 'blur(4px)',
+        filter: 'blur(3.5px)',
         opacity: 0.14,
         zIndex: 1,
       };
@@ -149,7 +149,7 @@ export default function TestimonialsBox() {
         margin: '0 auto',
         padding: 0,
         overflow: 'hidden',
-        borderRadius: '26px',
+        borderRadius: '28px',
         userSelect: 'none',
         cursor: 'ns-resize',
         touchAction: 'none',
