@@ -51,7 +51,8 @@ export default function TestimonialsBox() {
       background:
         'linear-gradient(135deg, rgba(255, 250, 236, 0.12) 0%, rgba(255, 248, 228, 0.04) 55%, rgba(255, 235, 180, 0.08) 100%)',
       border: '1px solid rgba(255, 246, 220, 0.22)',
-      transition: 'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, filter 0.65s ease',
+      transition:
+        'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, filter 0.65s ease',
       willChange: 'transform, opacity',
       cursor: 'pointer',
       textShadow: '0 2px 12px rgba(0, 0, 0, 0.78)',
@@ -117,6 +118,7 @@ export default function TestimonialsBox() {
   return (
     <div
       id="wf-testi-box"
+      className="wf-glass"
       onWheel={(e) => {
         e.stopPropagation();
         if (Math.abs(e.deltaY) < 6 || wheelLockRef.current) return;
@@ -145,19 +147,17 @@ export default function TestimonialsBox() {
         height: '380px',
         maxWidth: '740px',
         margin: '0 auto',
+        padding: 0,
         overflow: 'hidden',
         borderRadius: '26px',
-        background: 'linear-gradient(135deg, rgba(255, 250, 236, 0.08), rgba(255, 248, 228, 0.02))',
-        backdropFilter: 'blur(22px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(22px) saturate(160%)',
-        border: '1px solid rgba(255, 246, 220, 0.22)',
-        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
         perspective: '900px',
         userSelect: 'none',
         cursor: 'ns-resize',
         touchAction: 'none',
-        WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
-        maskImage: 'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
+        WebkitMaskImage:
+          'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
+        maskImage:
+          'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
       }}
     >
       {reviews.map((rev, idx) => {
@@ -176,10 +176,26 @@ export default function TestimonialsBox() {
               pauseAndResumeAuto(6000);
             }}
           >
-            <div style={{ color: '#F5EFE6', fontSize: '1rem', lineHeight: 1.55, fontStyle: 'italic', marginBottom: '0.7rem' }}>
+            <div
+              style={{
+                color: '#F5EFE6',
+                fontSize: '1rem',
+                lineHeight: 1.55,
+                fontStyle: 'italic',
+                marginBottom: '0.7rem',
+              }}
+            >
               “{rev.text}”
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#F0CA5A', fontWeight: 700 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: '#F0CA5A',
+                fontWeight: 700,
+              }}
+            >
               <span>— {rev.name}</span>
               <span style={{ display: 'inline-flex', gap: '3px' }}>
                 {Array.from({ length: rev.stars || 5 }).map((_, sIdx) => (
