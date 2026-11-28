@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 
-export default function ReviewForm() {
+export default function ReviewForm({ noEdgeDistort = false }) {
   const { addLiveReview } = useApp();
   const [name, setName] = useState('');
   const [stars, setStars] = useState(0);
@@ -70,7 +70,10 @@ export default function ReviewForm() {
         <div className={status.type === 'ok' ? 'wf-alert-ok' : 'wf-alert-err'}>{status.msg}</div>
       )}
 
-      <form className="wf-card" onSubmit={handleSubmit}>
+      <form
+        className={`wf-card ${noEdgeDistort ? 'wf-no-edge-distort' : ''}`.trim()}
+        onSubmit={handleSubmit}
+      >
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
