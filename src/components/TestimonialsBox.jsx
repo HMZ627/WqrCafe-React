@@ -49,13 +49,13 @@ export default function TestimonialsBox() {
       padding: '1.35rem 1.65rem',
       borderRadius: '20px',
       background:
-        'linear-gradient(135deg, rgba(255, 250, 236, 0.06) 0%, rgba(255, 248, 228, 0.015) 55%, rgba(255, 235, 180, 0.04) 100%)',
-      border: '1px solid rgba(255, 246, 220, 0.24)',
+        'linear-gradient(135deg, rgba(255, 250, 236, 0.12) 0%, rgba(255, 248, 228, 0.04) 55%, rgba(255, 235, 180, 0.08) 100%)',
+      border: '1px solid rgba(255, 246, 220, 0.22)',
       transition:
         'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, filter 0.65s ease',
       willChange: 'transform, opacity',
       cursor: 'pointer',
-      textShadow: '0 2px 14px rgba(0, 0, 0, 0.92), 0 0 6px rgba(0, 0, 0, 0.85)',
+      textShadow: '0 2px 12px rgba(0, 0, 0, 0.78)',
     };
 
     if (pos === 0) {
@@ -65,16 +65,16 @@ export default function TestimonialsBox() {
         filter: 'blur(0px)',
         opacity: 1,
         zIndex: 5,
-        borderColor: 'rgba(255, 246, 220, 0.4)',
+        borderColor: 'rgba(255, 246, 220, 0.36)',
         boxShadow:
-          '0 22px 50px rgba(0,0,0,0.52), inset 0 1px 1px rgba(255,255,255,0.4), inset 1px 0 1px rgba(255,255,255,0.16)',
+          '0 22px 50px rgba(0,0,0,0.52), inset 0 1px 1px rgba(255,255,255,0.36), inset 1px 0 1px rgba(255,255,255,0.14)',
       };
     }
     if (pos === -1) {
       return {
         ...base,
         transform: 'translate(-50%, -138%) scale(0.86) rotateX(16deg) skewX(-1.5deg)',
-        filter: 'blur(2px)',
+        filter: 'blur(2.5px)',
         opacity: 0.45,
         zIndex: 3,
       };
@@ -83,7 +83,7 @@ export default function TestimonialsBox() {
       return {
         ...base,
         transform: 'translate(-50%, 38%) scale(0.86) rotateX(-16deg) skewX(1.5deg)',
-        filter: 'blur(2px)',
+        filter: 'blur(2.5px)',
         opacity: 0.45,
         zIndex: 3,
       };
@@ -92,7 +92,7 @@ export default function TestimonialsBox() {
       return {
         ...base,
         transform: 'translate(-50%, -215%) scale(0.74) rotateX(24deg)',
-        filter: 'blur(3.5px)',
+        filter: 'blur(4px)',
         opacity: 0.14,
         zIndex: 1,
       };
@@ -101,7 +101,7 @@ export default function TestimonialsBox() {
       return {
         ...base,
         transform: 'translate(-50%, 115%) scale(0.74) rotateX(-24deg)',
-        filter: 'blur(3.5px)',
+        filter: 'blur(4px)',
         opacity: 0.14,
         zIndex: 1,
       };
@@ -149,73 +149,65 @@ export default function TestimonialsBox() {
         margin: '0 auto',
         padding: 0,
         overflow: 'hidden',
-        borderRadius: '28px',
+        borderRadius: '26px',
+        perspective: '900px',
         userSelect: 'none',
         cursor: 'ns-resize',
         touchAction: 'none',
+        WebkitMaskImage:
+          'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
+        maskImage:
+          'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
       }}
     >
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          perspective: '900px',
-          WebkitMaskImage:
-            'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
-          maskImage:
-            'linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%)',
-        }}
-      >
-        {reviews.map((rev, idx) => {
-          const n = reviews.length;
-          let diff = idx - activeIdx;
-          if (diff > Math.floor(n / 2)) diff -= n;
-          if (diff < -Math.floor(n / 2)) diff += n;
-          const pos = Math.abs(diff) <= 2 ? diff : 99;
+      {reviews.map((rev, idx) => {
+        const n = reviews.length;
+        let diff = idx - activeIdx;
+        if (diff > Math.floor(n / 2)) diff -= n;
+        if (diff < -Math.floor(n / 2)) diff += n;
+        const pos = Math.abs(diff) <= 2 ? diff : 99;
 
-          return (
+        return (
+          <div
+            key={`${rev.name}-${idx}`}
+            style={cardStyleForPos(pos)}
+            onClick={() => {
+              setActiveIdx(idx);
+              pauseAndResumeAuto(6000);
+            }}
+          >
             <div
-              key={`${rev.name}-${idx}`}
-              style={cardStyleForPos(pos)}
-              onClick={() => {
-                setActiveIdx(idx);
-                pauseAndResumeAuto(6000);
+              style={{
+                color: '#F5EFE6',
+                fontSize: '1rem',
+                lineHeight: 1.55,
+                fontStyle: 'italic',
+                marginBottom: '0.7rem',
               }}
             >
-              <div
-                style={{
-                  color: '#F5EFE6',
-                  fontSize: '1rem',
-                  lineHeight: 1.55,
-                  fontStyle: 'italic',
-                  marginBottom: '0.7rem',
-                }}
-              >
-                “{rev.text}”
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  color: '#F0CA5A',
-                  fontWeight: 700,
-                }}
-              >
-                <span>— {rev.name}</span>
-                <span style={{ display: 'inline-flex', gap: '3px' }}>
-                  {Array.from({ length: rev.stars || 5 }).map((_, sIdx) => (
-                    <svg key={sIdx} width="14" height="14" viewBox="0 0 24 24" fill="#F0CA5A">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </span>
-              </div>
+              “{rev.text}”
             </div>
-          );
-        })}
-      </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: '#F0CA5A',
+                fontWeight: 700,
+              }}
+            >
+              <span>— {rev.name}</span>
+              <span style={{ display: 'inline-flex', gap: '3px' }}>
+                {Array.from({ length: rev.stars || 5 }).map((_, sIdx) => (
+                  <svg key={sIdx} width="14" height="14" viewBox="0 0 24 24" fill="#F0CA5A">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                ))}
+              </span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
