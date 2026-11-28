@@ -13,16 +13,17 @@ export default function MenuPage() {
   }
 
   return (
-    <motion.div
-      className="wf-page-container"
-      initial={{ opacity: 0, y: 28 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <h2 className="wf-section-title">
-        Our <span>Signature</span> Menu
-      </h2>
-      <p className="wf-section-sub">Handcrafted fresh after sundown. Choose your cravings below.</p>
+    <div className="wf-page-container">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <h2 className="wf-section-title">
+          Our <span>Signature</span> Menu
+        </h2>
+        <p className="wf-section-sub">Handcrafted fresh after sundown. Choose your cravings below.</p>
+      </motion.div>
 
       {toast && (
         <div
@@ -34,8 +35,14 @@ export default function MenuPage() {
       )}
 
       <div className="wf-menu-grid">
-        {Object.values(MENU_ITEMS).map((item) => (
-          <div key={item.id} className="wf-card">
+        {Object.values(MENU_ITEMS).map((item, idx) => (
+          <motion.div
+            key={item.id}
+            className="wf-card"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
+          >
             <img
               src={item.image}
               alt={item.name}
@@ -108,9 +115,9 @@ export default function MenuPage() {
                 Add to Order
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
