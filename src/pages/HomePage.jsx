@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useApp } from '../context/AppContext';
 import IntroOverlay from '../components/IntroOverlay';
 import SpatialShowcase from '../components/SpatialShowcase';
 
 export default function HomePage() {
-  const [revealed, setRevealed] = useState(false);
+  const { introDone } = useApp();
+  const [revealed, setRevealed] = useState(introDone);
 
   return (
     <>
