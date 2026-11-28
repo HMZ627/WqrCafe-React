@@ -306,6 +306,7 @@ export default function SpatialShowcase({ revealed }) {
     const dx = (r.camCol - target.camCol) * 100;
     const dy = (r.camRow - target.camRow) * 100;
 
+    // Room 3 (Testimonials): NEVER uses opacity < 1 or filter so #wf-testi-box refracts immediately at 0ms
     if (idx === 3) {
       const inBgBehindReview = activeRoom === 4;
       const isVisible = activeRoom === 3 || activeRoom === 4 || prevRoomRef.current === 3;
@@ -315,35 +316,34 @@ export default function SpatialShowcase({ revealed }) {
         left: 0,
         width: '100vw',
         height: '100dvh',
-        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${inBgBehindReview ? 0.82 : 1})`,
-        ...(inBgBehindReview ? { filter: 'blur(12px)' } : {}),
-        opacity: inBgBehindReview ? 0.32 : 1,
+        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${inBgBehindReview ? 0.84 : 1})`,
+        opacity: 1,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: activeRoom === 3 ? 'auto' : 'none',
-        transition:
-          'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), filter 0.85s ease, opacity 0.85s ease',
+        transition: 'transform 0.85s cubic-bezier(0.65, 0, 0.35, 1)',
         willChange: 'transform',
         zIndex: inBgBehindReview ? 11 : activeRoom === 3 ? 12 : 10,
         background: 'transparent',
       };
     }
 
+    // Room 4 (Review): enters with opacity: 1 (zero backdrop-filter delay); scales out cleanly when returning to Room 3
     if (idx === 4) {
       const isActive = activeRoom === 4;
-      const isVisible = isActive || prevRoomRef.current === 4;
+      const isLeaving = !isActive && prevRoomRef.current === 4;
       return {
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100vw',
         height: '100dvh',
-        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${isActive ? 1 : 1.18})`,
-        ...(isActive ? {} : { filter: 'blur(18px)' }),
+        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${isActive ? 1 : 1.14})`,
         opacity: isActive ? 1 : 0,
-        visibility: isVisible ? 'visible' : 'hidden',
+        visibility: isActive || isLeaving ? 'visible' : 'hidden',
         pointerEvents: isActive ? 'auto' : 'none',
-        transition:
-          'transform 0.88s cubic-bezier(0.22, 1, 0.36, 1), filter 0.82s ease, opacity 0.78s ease',
+        transition: isActive
+          ? 'transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)'
+          : 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease',
         willChange: 'transform',
         zIndex: 14,
         background: 'transparent',
@@ -370,118 +370,121 @@ export default function SpatialShowcase({ revealed }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: 'transparent' }}>
-      {/* Room (0, 0): Sleek Curvy Quote */}
+      {/* Room (0, 0): Sleek Curvy Quote (glass card stays opacity: 1 so refraction is instant at 0ms) */}
       <section className="wf-room-section" style={roomStyle(0)}>
         <div className="wf-room-inner" style={{ textAlign: 'center', maxWidth: '960px' }}>
-          <motion.blockquote
+          <blockquote
             className="wf-glass"
-            initial={{ opacity: 0, y: 24 }}
-            animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             style={{
               margin: 0,
               padding: '2.2rem 2rem 1.8rem 2rem',
               borderRadius: '26px',
             }}
           >
-            <span
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontStyle: 'italic',
-                fontSize: 'clamp(3rem, 5.5vw, 5rem)',
-                color: 'rgba(255,246,220,0.55)',
-                display: 'block',
-                textAlign: 'left',
-                lineHeight: 0.45,
-                marginBottom: '0.7rem',
-              }}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+              transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
             >
-              “
-            </span>
-            <h1 style={{ margin: 0, lineHeight: 1.25, fontWeight: 400 }}>
               <span
                 style={{
-                  fontFamily: "'Great Vibes', cursive",
-                  fontSize: 'clamp(3.1rem, 7.2vw, 6.2rem)',
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(3rem, 5.5vw, 5rem)',
+                  color: 'rgba(255,246,220,0.55)',
+                  display: 'block',
+                  textAlign: 'left',
+                  lineHeight: 0.45,
+                  marginBottom: '0.7rem',
+                }}
+              >
+                “
+              </span>
+              <h1 style={{ margin: 0, lineHeight: 1.25, fontWeight: 400 }}>
+                <span
+                  style={{
+                    fontFamily: "'Great Vibes', cursive",
+                    fontSize: 'clamp(3.1rem, 7.2vw, 6.2rem)',
+                    color: '#F0CA5A',
+                    textShadow: '0 4px 24px rgba(0,0,0,0.75)',
+                    paddingRight: '6px',
+                  }}
+                >
+                  Flavour
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)',
+                    fontStyle: 'italic',
+                    fontWeight: 300,
+                    color: '#F5EFE6',
+                  }}
+                >
+                  , that comes{' '}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Parisienne', cursive",
+                    fontSize: 'clamp(2.2rem, 4.6vw, 3.8rem)',
+                    color: '#FFFFFF',
+                  }}
+                >
+                  Alive{' '}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)',
+                    fontStyle: 'italic',
+                    fontWeight: 300,
+                    color: '#F5EFE6',
+                  }}
+                >
+                  After{' '}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Great Vibes', cursive",
+                    fontSize: 'clamp(3rem, 7vw, 6rem)',
+                    background: 'linear-gradient(180deg, #FFF8E6 0%, #F0CA5A 58%, #C99A27 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    padding: '0 6px',
+                  }}
+                >
+                  Darkness
+                </span>
+              </h1>
+              <span
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(3rem, 5.5vw, 5rem)',
+                  color: 'rgba(255,246,220,0.55)',
+                  display: 'block',
+                  textAlign: 'right',
+                  lineHeight: 0.45,
+                  marginTop: '0.7rem',
+                }}
+              >
+                ”
+              </span>
+              <div
+                style={{
+                  marginTop: '1.1rem',
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontStyle: 'italic',
+                  letterSpacing: '3.5px',
+                  textTransform: 'uppercase',
                   color: '#F0CA5A',
-                  textShadow: '0 4px 24px rgba(0,0,0,0.75)',
-                  paddingRight: '6px',
+                  fontWeight: 600,
                 }}
               >
-                Flavour
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)',
-                  fontStyle: 'italic',
-                  fontWeight: 300,
-                  color: '#F5EFE6',
-                }}
-              >
-                , that comes{' '}
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Parisienne', cursive",
-                  fontSize: 'clamp(2.2rem, 4.6vw, 3.8rem)',
-                  color: '#FFFFFF',
-                }}
-              >
-                Alive{' '}
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: 'clamp(1.2rem, 2.5vw, 2.1rem)',
-                  fontStyle: 'italic',
-                  fontWeight: 300,
-                  color: '#F5EFE6',
-                }}
-              >
-                After{' '}
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Great Vibes', cursive",
-                  fontSize: 'clamp(3rem, 7vw, 6rem)',
-                  background: 'linear-gradient(180deg, #FFF8E6 0%, #F0CA5A 58%, #C99A27 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  padding: '0 6px',
-                }}
-              >
-                Darkness
-              </span>
-            </h1>
-            <span
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontStyle: 'italic',
-                fontSize: 'clamp(3rem, 5.5vw, 5rem)',
-                color: 'rgba(255,246,220,0.55)',
-                display: 'block',
-                textAlign: 'right',
-                lineHeight: 0.45,
-                marginTop: '0.7rem',
-              }}
-            >
-              ”
-            </span>
-            <div
-              style={{
-                marginTop: '1.1rem',
-                fontFamily: "'Cormorant Garamond', serif",
-                fontStyle: 'italic',
-                letterSpacing: '3.5px',
-                textTransform: 'uppercase',
-                color: '#F0CA5A',
-                fontWeight: 600,
-              }}
-            >
-              — Waqar Foodies
-            </div>
-          </motion.blockquote>
+                — Waqar Foodies
+              </div>
+            </motion.div>
+          </blockquote>
           <div style={{ marginTop: '1.4rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>
             ↓
           </div>
@@ -532,49 +535,48 @@ export default function SpatialShowcase({ revealed }) {
         </div>
 
         <div className="wf-craft-grid">
-          <motion.div
-            key={`left-${videoStep}`}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          <div
             className="wf-glass wf-craft-side-card"
             style={{
               padding: '1.35rem 1.55rem',
               borderRadius: '20px',
             }}
           >
-            <div
-              style={{
-                fontSize: '0.76rem',
-                letterSpacing: '2.2px',
-                textTransform: 'uppercase',
-                color: '#F0CA5A',
-                marginBottom: '0.45rem',
-                fontWeight: 600,
-              }}
+            <motion.div
+              key={`left-${videoStep}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
-              {currentSec.source}
-            </div>
-            <h2
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 'clamp(1.25rem, 2.8vw, 2.6rem)',
-                margin: 0,
-                color: '#F5EFE6',
-                lineHeight: 1.18,
-              }}
-            >
-              {currentSec.sub}
-            </h2>
-          </motion.div>
+              <div
+                style={{
+                  fontSize: '0.76rem',
+                  letterSpacing: '2.2px',
+                  textTransform: 'uppercase',
+                  color: '#F0CA5A',
+                  marginBottom: '0.45rem',
+                  fontWeight: 600,
+                }}
+              >
+                {currentSec.source}
+              </div>
+              <h2
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 'clamp(1.25rem, 2.8vw, 2.6rem)',
+                  margin: 0,
+                  color: '#F5EFE6',
+                  lineHeight: 1.18,
+                }}
+              >
+                {currentSec.sub}
+              </h2>
+            </motion.div>
+          </div>
 
           <div className="wf-craft-spacer" style={{ minHeight: '220px' }} />
 
-          <motion.div
-            key={`right-${videoStep}`}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          <div
             className="wf-glass wf-craft-side-card"
             style={{
               textAlign: 'right',
@@ -582,17 +584,24 @@ export default function SpatialShowcase({ revealed }) {
               borderRadius: '20px',
             }}
           >
-            <p
-              style={{
-                color: '#F5EFE6',
-                fontSize: 'clamp(0.86rem, 1.25vw, 1.12rem)',
-                lineHeight: 1.6,
-                margin: 0,
-              }}
+            <motion.div
+              key={`right-${videoStep}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
-              {currentSec.body}
-            </p>
-          </motion.div>
+              <p
+                style={{
+                  color: '#F5EFE6',
+                  fontSize: 'clamp(0.86rem, 1.25vw, 1.12rem)',
+                  lineHeight: 1.6,
+                  margin: 0,
+                }}
+              >
+                {currentSec.body}
+              </p>
+            </motion.div>
+          </div>
         </div>
 
         <div
@@ -677,7 +686,7 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Room (1, 2) Background Layer: Voices of our Regulars */}
+      {/* Room (1, 2) Background Layer: Voices of our Regulars (stays at opacity: 1, no filter on self) */}
       <section ref={room3Ref} className="wf-room-section" style={roomStyle(3)}>
         <div className="wf-room-inner" style={{ maxWidth: '780px' }}>
           <h2 className="wf-section-title" style={{ marginBottom: '1.5rem' }}>
@@ -686,6 +695,22 @@ export default function SpatialShowcase({ revealed }) {
           <TestimonialsBox />
         </div>
       </section>
+
+      {/* Between-layer blur scrim: blurs Room 3 cleanly when Room 4 (Review) is active */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 13,
+          pointerEvents: 'none',
+          background: 'rgba(11, 10, 8, 0.54)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          opacity: activeRoom === 4 ? 1 : 0,
+          transition: 'opacity 0.55s ease',
+        }}
+      />
 
       {/* Room (1, 2) Foreground Depth Layer: Submit Review */}
       <section ref={room4Ref} className="wf-room-section" style={roomStyle(4)}>
