@@ -372,15 +372,12 @@ export default function SpatialShowcase({ revealed }) {
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: 'transparent' }}>
       {/* Room (0, 0): Sleek Curvy Quote */}
       <section className="wf-room-section" style={roomStyle(0)}>
-        <motion.div
-          className="wf-room-inner"
-          initial={{ opacity: 0, y: 24 }}
-          animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1] }}
-          style={{ textAlign: 'center', maxWidth: '960px' }}
-        >
-          <blockquote
+        <div className="wf-room-inner" style={{ textAlign: 'center', maxWidth: '960px' }}>
+          <motion.blockquote
             className="wf-glass"
+            initial={{ opacity: 0, y: 24 }}
+            animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             style={{
               margin: 0,
               padding: '2.2rem 2rem 1.8rem 2rem',
@@ -484,11 +481,11 @@ export default function SpatialShowcase({ revealed }) {
             >
               — Waqar Foodies
             </div>
-          </blockquote>
+          </motion.blockquote>
           <div style={{ marginTop: '1.4rem', color: 'rgba(245,239,230,0.55)', letterSpacing: '2px' }}>
             ↓
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Room (0, 1): Burger Prep Full-Screen Showcase */}
