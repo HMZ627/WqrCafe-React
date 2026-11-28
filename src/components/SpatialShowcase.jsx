@@ -301,13 +301,14 @@ export default function SpatialShowcase({ revealed }) {
   const target = ROOMS[activeRoom];
   const currentSec = VIDEO_SECTIONS[videoStep];
 
-  // Pure translate3d transitions (no scale/opacity/filter on sections) keep Liquid Glass active at every frame
   const roomStyle = (idx) => {
     const r = ROOMS[idx];
     const dx = (r.camCol - target.camCol) * 100;
+    const dy = (r.camRow - target.camRow) * 100;
 
+    // Restored depth-zoom & blur transition for Testimonials (Room 3) <-> Review (Room 4)
     if (idx === 3) {
-      const dy = (r.camRow - target.camRow) * 100;
+      const inBgBehindReview = activeRoom === 4;
       const isVisible = activeRoom === 3 || activeRoom === 4 || prevRoomRef.current === 3;
       return {
         position: 'fixed',
@@ -315,39 +316,41 @@ export default function SpatialShowcase({ revealed }) {
         left: 0,
         width: '100vw',
         height: '100dvh',
-        transform: `translate3d(${dx}vw, ${dy}dvh, 0)`,
-        opacity: 1,
+        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${inBgBehindReview ? 0.82 : 1})`,
+        ...(inBgBehindReview ? { filter: 'blur(12px)' } : {}),
+        opacity: inBgBehindReview ? 0.32 : 1,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: activeRoom === 3 ? 'auto' : 'none',
-        transition: 'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1)',
+        transition:
+          'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), filter 0.85s ease, opacity 0.85s ease',
         willChange: 'transform',
-        zIndex: activeRoom === 4 ? 11 : 12,
+        zIndex: inBgBehindReview ? 11 : activeRoom === 3 ? 12 : 10,
         background: 'transparent',
       };
     }
 
     if (idx === 4) {
       const isActive = activeRoom === 4;
-      const isLeaving = !isActive && prevRoomRef.current === 4;
-      const dy = isActive ? 0 : (3 - target.camRow) * 100;
+      const isVisible = isActive || prevRoomRef.current === 4;
       return {
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100vw',
         height: '100dvh',
-        transform: `translate3d(${dx}vw, ${dy}dvh, 0)`,
-        opacity: 1,
-        visibility: isActive || isLeaving ? 'visible' : 'hidden',
+        transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${isActive ? 1 : 1.18})`,
+        ...(isActive ? {} : { filter: 'blur(18px)' }),
+        opacity: isActive ? 1 : 0,
+        visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: isActive ? 'auto' : 'none',
-        transition: 'transform 0.85s cubic-bezier(0.65, 0, 0.35, 1)',
+        transition:
+          'transform 0.88s cubic-bezier(0.22, 1, 0.36, 1), filter 0.82s ease, opacity 0.78s ease',
         willChange: 'transform',
         zIndex: 14,
         background: 'transparent',
       };
     }
 
-    const dy = (r.camRow - target.camRow) * 100;
     const isVisible = idx === activeRoom || idx === prevRoomRef.current;
     return {
       position: 'fixed',
@@ -694,24 +697,10 @@ export default function SpatialShowcase({ revealed }) {
         </div>
       </section>
 
-      {/* Clean non-backdrop-filter dark veil dims Room 3 behind Room 4 without blocking Liquid Glass */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 13,
-          pointerEvents: 'none',
-          background: 'rgba(11, 10, 8, 0.74)',
-          opacity: activeRoom === 4 ? 1 : 0,
-          transition: 'opacity 0.65s ease',
-        }}
-      />
-
-      {/* Room (1, 2) Foreground Layer: Submit Review */}
+      {/* Room (1, 2) Foreground Depth Layer: Submit Review (Clean frost, no edge distortion) */}
       <section ref={room4Ref} className="wf-room-section" style={roomStyle(4)}>
         <div className="wf-room-inner">
-          <ReviewForm />
+          <ReviewForm noEdgeDistort={true} />
         </div>
       </section>
 
