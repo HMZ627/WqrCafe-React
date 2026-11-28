@@ -9,10 +9,10 @@ function buildLiquidEdgeMapUrl() {
   const img = ctx.createImageData(size, size);
   const data = img.data;
 
-  // Rounded-box SDF so distortion hugs the curved corners & outer rim smoothly
+  // Rounded-box SDF with steep convex bezel curve near the edges
   const half = 0.5;
-  const radius = 0.14;
-  const rimWidth = 0.19;
+  const radius = 0.16;
+  const rimWidth = 0.22;
 
   for (let y = 0; y < size; y++) {
     const v = (y + 0.5) / size;
@@ -36,7 +36,6 @@ function buildLiquidEdgeMapUrl() {
       let g = 128;
 
       if (insideDist > 0 && insideDist < rimWidth) {
-        // Compute inward normal toward container center
         let nx = 0;
         let ny = 0;
         if (ox > 0 || oy > 0) {
@@ -49,12 +48,13 @@ function buildLiquidEdgeMapUrl() {
           ny = -Math.sign(py);
         }
 
-        // Smooth bell curve: 0 at outer boundary (zero edge tearing), peaks along curved bezel, 0 in text interior
-        const t = insideDist / rimWidth;
-        const strength = Math.sin(t * Math.PI) * Math.pow(1 - t, 0.75);
+        // Convex squircle refraction slope: stretches & loops background along curved edges, flat in center
+        const t = insideDist / rimWidth; // 0 at border -> 1 at inner flat area
+        const edgeAntiAlias = Math.min(1, t / 0.06);
+        const lensSlope = Math.pow(1 - t, 1.8) * edgeAntiAlias;
 
-        r = Math.round(128 + nx * 124 * strength);
-        g = Math.round(128 + ny * 124 * strength);
+        r = Math.round(128 + nx * 127 * lensSlope);
+        g = Math.round(128 + ny * 127 * lensSlope);
       }
 
       const idx = (y * size + x) * 4;
@@ -75,8 +75,6 @@ export default function LiquidGlassFilter() {
   useEffect(() => {
     setMapUrl(buildLiquidEdgeMapUrl());
 
-    // Only Chromium (Chrome, ChromeOS Flex, Edge, Android Chrome) supports SVG url() inside backdrop-filter.
-    // Leaving the class off on iOS Safari / Firefox preserves their native frosted blur cleanly.
     const ua = navigator.userAgent;
     const isChromium =
       (/Chrome\//.test(ua) || /Edg\//.test(ua)) &&
@@ -103,29 +101,72 @@ export default function LiquidGlassFilter() {
       <defs>
         <filter
           id="wf-liquid-edge"
-          x="0%"
-          y="0%"
-          width="100%"
-          height="100%"
+          x="0"
+          y="0"
+          width="1"
+          height="1"
+          filterUnits="objectBoundingBox"
+          primitiveUnits="objectBoundingBox"
           colorInterpolationFilters="sRGB"
         >
           <feImage
             href={mapUrl}
-            x="0%"
-            y="0%"
-            width="100%"
-            height="100%"
+            x="0"
+            y="0"
+            width="1"
+            height="1"
             preserveAspectRatio="none"
             result="lensMap"
           />
-          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="softBg" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.0014" result="softBg" />
+
+          {/* R / G / B slightly offset scales create subtle optical prism fringing at curved edges */}
           <feDisplacementMap
             in="softBg"
             in2="lensMap"
-            scale="44"
+            scale="0.20"
             xChannelSelector="R"
             yChannelSelector="G"
+            result="dispR"
           />
+          <feDisplacementMap
+            in="softBg"
+            in2="lensMap"
+            scale="0.225"
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="dispG"
+          />
+          <feDisplacementMap
+            in="softBg"
+            in2="lensMap"
+            scale="0.25"
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="dispB"
+          />
+
+          <feColorMatrix
+            in="dispR"
+            type="matrix"
+            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+            result="chR"
+          />
+          <feColorMatrix
+            in="dispG"
+            type="matrix"
+            values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+            result="chG"
+          />
+          <feColorMatrix
+            in="dispB"
+            type="matrix"
+            values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+            result="chB"
+          />
+
+          <feBlend in="chR" in2="chG" mode="screen" result="chRG" />
+          <feBlend in="chRG" in2="chB" mode="screen" />
         </filter>
       </defs>
     </svg>
