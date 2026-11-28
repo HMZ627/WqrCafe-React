@@ -9,10 +9,10 @@ function buildLiquidEdgeMapUrl() {
   const img = ctx.createImageData(size, size);
   const data = img.data;
 
-  // Rounded-box SDF: flat & sharp in center, strong curved lens stretch near edges
+  // Rounded-box SDF so distortion hugs the curved corners & outer rim smoothly
   const half = 0.5;
-  const radius = 0.16;
-  const rimWidth = 0.23;
+  const radius = 0.14;
+  const rimWidth = 0.19;
 
   for (let y = 0; y < size; y++) {
     const v = (y + 0.5) / size;
@@ -36,6 +36,7 @@ function buildLiquidEdgeMapUrl() {
       let g = 128;
 
       if (insideDist > 0 && insideDist < rimWidth) {
+        // Compute inward normal toward container center
         let nx = 0;
         let ny = 0;
         if (ox > 0 || oy > 0) {
@@ -48,12 +49,12 @@ function buildLiquidEdgeMapUrl() {
           ny = -Math.sign(py);
         }
 
+        // Smooth bell curve: 0 at outer boundary (zero edge tearing), peaks along curved bezel, 0 in text interior
         const t = insideDist / rimWidth;
-        const edgeAntiAlias = Math.min(1, t / 0.045);
-        const lensSlope = Math.pow(1 - t, 1.65) * edgeAntiAlias;
+        const strength = Math.sin(t * Math.PI) * Math.pow(1 - t, 0.75);
 
-        r = Math.round(128 + nx * 127 * lensSlope);
-        g = Math.round(128 + ny * 127 * lensSlope);
+        r = Math.round(128 + nx * 124 * strength);
+        g = Math.round(128 + ny * 124 * strength);
       }
 
       const idx = (y * size + x) * 4;
@@ -74,6 +75,8 @@ export default function LiquidGlassFilter() {
   useEffect(() => {
     setMapUrl(buildLiquidEdgeMapUrl());
 
+    // Only Chromium (Chrome, ChromeOS Flex, Edge, Android Chrome) supports SVG url() inside backdrop-filter.
+    // Leaving the class off on iOS Safari / Firefox preserves their native frosted blur cleanly.
     const ua = navigator.userAgent;
     const isChromium =
       (/Chrome\//.test(ua) || /Edg\//.test(ua)) &&
@@ -100,71 +103,29 @@ export default function LiquidGlassFilter() {
       <defs>
         <filter
           id="wf-liquid-edge"
-          x="0"
-          y="0"
-          width="1"
-          height="1"
-          filterUnits="objectBoundingBox"
-          primitiveUnits="objectBoundingBox"
+          x="0%"
+          y="0%"
+          width="100%"
+          height="100%"
           colorInterpolationFilters="sRGB"
         >
           <feImage
             href={mapUrl}
-            x="0"
-            y="0"
-            width="1"
-            height="1"
+            x="0%"
+            y="0%"
+            width="100%"
+            height="100%"
             preserveAspectRatio="none"
             result="lensMap"
           />
-
-          {/* Zero blur: keeps background particles sharp while stretching & fringing along curved edges */}
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="softBg" />
           <feDisplacementMap
-            in="SourceGraphic"
+            in="softBg"
             in2="lensMap"
-            scale="0.24"
+            scale="44"
             xChannelSelector="R"
             yChannelSelector="G"
-            result="dispR"
           />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="lensMap"
-            scale="0.27"
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="dispG"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="lensMap"
-            scale="0.30"
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="dispB"
-          />
-
-          <feColorMatrix
-            in="dispR"
-            type="matrix"
-            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
-            result="chR"
-          />
-          <feColorMatrix
-            in="dispG"
-            type="matrix"
-            values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
-            result="chG"
-          />
-          <feColorMatrix
-            in="dispB"
-            type="matrix"
-            values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
-            result="chB"
-          />
-
-          <feBlend in="chR" in2="chG" mode="screen" result="chRG" />
-          <feBlend in="chRG" in2="chB" mode="screen" />
         </filter>
       </defs>
     </svg>
