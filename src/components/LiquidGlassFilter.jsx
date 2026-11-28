@@ -1,81 +1,7 @@
-import React, { useEffect, useState } from 'react';
-
-function buildLiquidEdgeMapUrl() {
-  const size = 128;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  const img = ctx.createImageData(size, size);
-  const data = img.data;
-
-  // Rounded-box SDF with gradual inward-fading refraction (no sharp inner seam)
-  const half = 0.5;
-  const radius = 0.16;
-  const rimWidth = 0.30;
-
-  for (let y = 0; y < size; y++) {
-    const v = (y + 0.5) / size;
-    const py = v - 0.5;
-
-    for (let x = 0; x < size; x++) {
-      const u = (x + 0.5) / size;
-      const px = u - 0.5;
-
-      const bx = half - radius;
-      const by = half - radius;
-      const qx = Math.abs(px) - bx;
-      const qy = Math.abs(py) - by;
-
-      const ox = Math.max(qx, 0);
-      const oy = Math.max(qy, 0);
-      const outLen = Math.hypot(ox, oy);
-      const insideDist = -(Math.min(Math.max(qx, qy), 0) + outLen - radius);
-
-      let r = 128;
-      let g = 128;
-
-      if (insideDist > 0 && insideDist < rimWidth) {
-        let nx = 0;
-        let ny = 0;
-        if (ox > 0 || oy > 0) {
-          const len = Math.max(1e-5, outLen);
-          nx = -(Math.sign(px) * ox) / len;
-          ny = -(Math.sign(py) * oy) / len;
-        } else if (qx > qy) {
-          nx = -Math.sign(px);
-        } else {
-          ny = -Math.sign(py);
-        }
-
-        // Smooth C1 cosine falloff: zero value AND zero slope where distortion fades into center
-        const t = insideDist / rimWidth;
-        const edgeAntiAlias = Math.min(1, t / 0.055);
-        const cosineFade = Math.pow(0.5 * (1 + Math.cos(Math.PI * t)), 1.45);
-        const lensSlope = cosineFade * edgeAntiAlias;
-
-        r = Math.round(128 + nx * 127 * lensSlope);
-        g = Math.round(128 + ny * 127 * lensSlope);
-      }
-
-      const idx = (y * size + x) * 4;
-      data[idx] = Math.max(0, Math.min(255, r));
-      data[idx + 1] = Math.max(0, Math.min(255, g));
-      data[idx + 2] = 128;
-      data[idx + 3] = 255;
-    }
-  }
-
-  ctx.putImageData(img, 0, 0);
-  return canvas.toDataURL('image/png');
-}
+import React, { useEffect } from 'react';
 
 export default function LiquidGlassFilter() {
-  const [mapUrl, setMapUrl] = useState('');
-
   useEffect(() => {
-    setMapUrl(buildLiquidEdgeMapUrl());
-
     const ua = navigator.userAgent;
     const isChromium =
       (/Chrome\//.test(ua) || /Edg\//.test(ua)) &&
@@ -90,8 +16,6 @@ export default function LiquidGlassFilter() {
     };
   }, []);
 
-  if (!mapUrl) return null;
-
   return (
     <svg
       width="0"
@@ -100,46 +24,81 @@ export default function LiquidGlassFilter() {
       style={{ position: 'fixed', width: 0, height: 0, pointerEvents: 'none' }}
     >
       <defs>
+        {/* 100% pure GPU SVG primitives (no bitmap feImage) so Chromium backdrop-filter works everywhere */}
         <filter
           id="wf-liquid-edge"
-          x="0"
-          y="0"
-          width="1"
-          height="1"
-          filterUnits="objectBoundingBox"
-          primitiveUnits="objectBoundingBox"
+          x="0%"
+          y="0%"
+          width="100%"
+          height="100%"
           colorInterpolationFilters="sRGB"
         >
-          <feImage
-            href={mapUrl}
-            x="0"
-            y="0"
-            width="1"
-            height="1"
-            preserveAspectRatio="none"
-            result="lensMap"
+          {/* Solid black base + inset white box -> Gaussian blur creates thick curved bezel heightmap */}
+          <feFlood x="0%" y="0%" width="100%" height="100%" floodColor="#000000" result="blackBase" />
+          <feFlood x="4%" y="5%" width="92%" height="90%" floodColor="#ffffff" result="innerBox" />
+          <feMerge result="rawHeight">
+            <feMergeNode in="blackBase" />
+            <feMergeNode in="innerBox" />
+          </feMerge>
+          <feGaussianBlur in="rawHeight" stdDeviation="22" result="heightMap" />
+
+          {/* Sobel X & Y derivatives compute smooth inward surface normals along all edges */}
+          <feConvolveMatrix
+            in="heightMap"
+            order="3"
+            kernelMatrix="-1 0 1 -2 0 2 -1 0 1"
+            divisor="0.42"
+            bias="0.5"
+            edgeMode="duplicate"
+            preserveAlpha="true"
+            result="gx"
+          />
+          <feConvolveMatrix
+            in="heightMap"
+            order="3"
+            kernelMatrix="-1 -2 -1 0 0 0 1 2 1"
+            divisor="0.42"
+            bias="0.5"
+            edgeMode="duplicate"
+            preserveAlpha="true"
+            result="gy"
           />
 
+          <feColorMatrix
+            in="gx"
+            type="matrix"
+            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+            result="rx"
+          />
+          <feColorMatrix
+            in="gy"
+            type="matrix"
+            values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+            result="gyOnly"
+          />
+          <feBlend in="rx" in2="gyOnly" mode="screen" result="normalMap" />
+
+          {/* RGB edge stretching + chromatic prism fringing along curved edges */}
           <feDisplacementMap
             in="SourceGraphic"
-            in2="lensMap"
-            scale="0.19"
+            in2="normalMap"
+            scale="84"
             xChannelSelector="R"
             yChannelSelector="G"
             result="dispR"
           />
           <feDisplacementMap
             in="SourceGraphic"
-            in2="lensMap"
-            scale="0.215"
+            in2="normalMap"
+            scale="94"
             xChannelSelector="R"
             yChannelSelector="G"
             result="dispG"
           />
           <feDisplacementMap
             in="SourceGraphic"
-            in2="lensMap"
-            scale="0.24"
+            in2="normalMap"
+            scale="104"
             xChannelSelector="R"
             yChannelSelector="G"
             result="dispB"
