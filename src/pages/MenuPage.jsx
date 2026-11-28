@@ -15,9 +15,9 @@ export default function MenuPage() {
   return (
     <motion.div
       className="wf-page-container"
-      initial={{ opacity: 0, y: 32, filter: 'blur(18px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
     >
       <h2 className="wf-section-title">
         Our <span>Signature</span> Menu
@@ -25,7 +25,10 @@ export default function MenuPage() {
       <p className="wf-section-sub">Handcrafted fresh after sundown. Choose your cravings below.</p>
 
       {toast && (
-        <div className="wf-alert-ok" style={{ maxWidth: '420px', margin: '0 auto 1.4rem auto', textAlign: 'center' }}>
+        <div
+          className="wf-alert-ok"
+          style={{ maxWidth: '420px', margin: '0 auto 1.4rem auto', textAlign: 'center' }}
+        >
           {toast}
         </div>
       )}
@@ -46,7 +49,14 @@ export default function MenuPage() {
               {item.name}
             </div>
 
-            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.65rem', fontWeight: 700, margin: '0.8rem 0 0.35rem 0' }}>
+            <div
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: '1.65rem',
+                fontWeight: 700,
+                margin: '0.8rem 0 0.35rem 0',
+              }}
+            >
               {item.name}
             </div>
 
@@ -65,7 +75,15 @@ export default function MenuPage() {
               {item.price}/- PKR
             </div>
 
-            <p style={{ color: 'var(--wf-cream-muted)', fontSize: '0.94rem', lineHeight: 1.55, minHeight: '3.1rem', margin: '0 0 1.2rem 0' }}>
+            <p
+              style={{
+                color: 'var(--wf-cream-muted)',
+                fontSize: '0.94rem',
+                lineHeight: 1.55,
+                minHeight: '3.1rem',
+                margin: '0 0 1.2rem 0',
+              }}
+            >
               {item.desc}
             </p>
 
