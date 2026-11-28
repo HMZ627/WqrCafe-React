@@ -15,9 +15,9 @@ export default function MenuPage() {
   return (
     <div className="wf-page-container">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
         <h2 className="wf-section-title">
           Our <span>Signature</span> Menu
@@ -36,86 +36,86 @@ export default function MenuPage() {
 
       <div className="wf-menu-grid">
         {Object.values(MENU_ITEMS).map((item, idx) => (
-          <motion.div
-            key={item.id}
-            className="wf-card"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <img
-              src={item.image}
-              alt={item.name}
-              style={{ width: '100%', height: '230px', objectFit: 'cover', borderRadius: '14px' }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="wf-menu-placeholder" style={{ display: 'none' }}>
-              {item.name}
-            </div>
-
-            <div
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: '1.65rem',
-                fontWeight: 700,
-                margin: '0.8rem 0 0.35rem 0',
-              }}
+          <div key={item.id} className="wf-card">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
             >
-              {item.name}
-            </div>
+              <img
+                src={item.image}
+                alt={item.name}
+                style={{ width: '100%', height: '230px', objectFit: 'cover', borderRadius: '14px' }}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="wf-menu-placeholder" style={{ display: 'none' }}>
+                {item.name}
+              </div>
 
-            <div
-              style={{
-                display: 'inline-block',
-                background: 'rgba(212,175,55,0.14)',
-                border: '1px solid rgba(212,175,55,0.45)',
-                color: 'var(--wf-gold-bright)',
-                fontWeight: 700,
-                padding: '0.25rem 0.85rem',
-                borderRadius: '999px',
-                marginBottom: '0.7rem',
-              }}
-            >
-              {item.price}/- PKR
-            </div>
-
-            <p
-              style={{
-                color: 'var(--wf-cream-muted)',
-                fontSize: '0.94rem',
-                lineHeight: 1.55,
-                minHeight: '3.1rem',
-                margin: '0 0 1.2rem 0',
-              }}
-            >
-              {item.desc}
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              <OrderButton
-                onClick={() => {
-                  const alreadyInCart = cartItems.some((c) => c.id === item.id);
-                  if (!alreadyInCart) addToCart(item.id, 1);
-                  setIsCheckoutOpen(true);
+              <div
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: '1.65rem',
+                  fontWeight: 700,
+                  margin: '0.8rem 0 0.35rem 0',
                 }}
               >
-                Order now
-              </OrderButton>
-              <button
-                type="button"
-                className="wf-btn"
-                onClick={() => {
-                  addToCart(item.id, 1);
-                  showToast(`Added ${item.name} to your order.`);
+                {item.name}
+              </div>
+
+              <div
+                style={{
+                  display: 'inline-block',
+                  background: 'rgba(212,175,55,0.14)',
+                  border: '1px solid rgba(212,175,55,0.45)',
+                  color: 'var(--wf-gold-bright)',
+                  fontWeight: 700,
+                  padding: '0.25rem 0.85rem',
+                  borderRadius: '999px',
+                  marginBottom: '0.7rem',
                 }}
               >
-                Add to Order
-              </button>
-            </div>
-          </motion.div>
+                {item.price}/- PKR
+              </div>
+
+              <p
+                style={{
+                  color: 'var(--wf-cream-muted)',
+                  fontSize: '0.94rem',
+                  lineHeight: 1.55,
+                  minHeight: '3.1rem',
+                  margin: '0 0 1.2rem 0',
+                }}
+              >
+                {item.desc}
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <OrderButton
+                  onClick={() => {
+                    const alreadyInCart = cartItems.some((c) => c.id === item.id);
+                    if (!alreadyInCart) addToCart(item.id, 1);
+                    setIsCheckoutOpen(true);
+                  }}
+                >
+                  Order now
+                </OrderButton>
+                <button
+                  type="button"
+                  className="wf-btn"
+                  onClick={() => {
+                    addToCart(item.id, 1);
+                    showToast(`Added ${item.name} to your order.`);
+                  }}
+                >
+                  Add to Order
+                </button>
+              </div>
+            </motion.div>
+          </div>
         ))}
       </div>
     </div>
