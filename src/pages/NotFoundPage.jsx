@@ -9,9 +9,9 @@ export default function NotFoundPage() {
   return (
     <motion.div
       className="wf-page-container"
-      initial={{ opacity: 0, y: 32, filter: 'blur(18px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
     >
       <div
         className="wf-card"
@@ -64,7 +64,15 @@ export default function NotFoundPage() {
           Requested Path: <strong style={{ color: '#F0CA5A' }}>{pathname}</strong>
         </div>
 
-        <p style={{ color: '#E0D6C6', fontSize: '1rem', lineHeight: 1.65, maxWidth: '500px', margin: '0 auto 1.6rem auto' }}>
+        <p
+          style={{
+            color: '#E0D6C6',
+            fontSize: '1rem',
+            lineHeight: 1.65,
+            maxWidth: '500px',
+            margin: '0 auto 1.6rem auto',
+          }}
+        >
           The page you are looking for does not exist or may have moved. Return to Waqar Foodies or explore our signature menu.
         </p>
 
