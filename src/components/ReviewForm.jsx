@@ -54,9 +54,9 @@ export default function ReviewForm() {
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
       <motion.div
-        initial={{ opacity: 0, y: 18 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
         <h2 className="wf-section-title">
           Submit a <span>Review</span>
@@ -70,78 +70,78 @@ export default function ReviewForm() {
         <div className={status.type === 'ok' ? 'wf-alert-ok' : 'wf-alert-err'}>{status.msg}</div>
       )}
 
-      <motion.form
-        className="wf-card"
-        onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.65, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div style={{ marginBottom: '1rem' }}>
-          <label className="wf-label">Your Name (Optional)</label>
-          <input
-            type="text"
-            className="wf-input"
-            maxLength={60}
-            placeholder="e.g. Ali"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label className="wf-label">Rate Your Experience</label>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {[1, 2, 3, 4, 5].map((num) => {
-              const active = num <= (hoverStars || stars);
-              return (
-                <button
-                  key={num}
-                  type="button"
-                  aria-label={`${num} stars`}
-                  onMouseEnter={() => setHoverStars(num)}
-                  onMouseLeave={() => setHoverStars(0)}
-                  onClick={() => setStars(num)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    padding: '2px',
-                    transform: active ? 'scale(1.12)' : 'scale(1)',
-                    transition: 'transform 0.18s ease',
-                  }}
-                >
-                  <svg
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill={active ? '#D4AF37' : 'none'}
-                    stroke="#D4AF37"
-                    strokeWidth="1.7"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </button>
-              );
-            })}
+      <form className="wf-card" onSubmit={handleSubmit}>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div style={{ marginBottom: '1rem' }}>
+            <label className="wf-label">Your Name (Optional)</label>
+            <input
+              type="text"
+              className="wf-input"
+              maxLength={60}
+              placeholder="e.g. Ali"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
-        </div>
 
-        <div style={{ marginBottom: '1.1rem' }}>
-          <label className="wf-label">Your Review</label>
-          <textarea
-            className="wf-textarea"
-            rows={4}
-            maxLength={800}
-            placeholder="Write your thoughts about the Tower Burger, Chicken Paratha Roll, or cafe vibe..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-        </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label className="wf-label">Rate Your Experience</label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {[1, 2, 3, 4, 5].map((num) => {
+                const active = num <= (hoverStars || stars);
+                return (
+                  <button
+                    key={num}
+                    type="button"
+                    aria-label={`${num} stars`}
+                    onMouseEnter={() => setHoverStars(num)}
+                    onMouseLeave={() => setHoverStars(0)}
+                    onClick={() => setStars(num)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      padding: '2px',
+                      transform: active ? 'scale(1.12)' : 'scale(1)',
+                      transition: 'transform 0.18s ease',
+                    }}
+                  >
+                    <svg
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill={active ? '#D4AF37' : 'none'}
+                      stroke="#D4AF37"
+                      strokeWidth="1.7"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-        <button type="submit" className="wf-btn-gold" style={{ width: '100%' }} disabled={submitting}>
-          {submitting ? 'Submitting...' : 'Submit'}
-        </button>
-      </motion.form>
+          <div style={{ marginBottom: '1.1rem' }}>
+            <label className="wf-label">Your Review</label>
+            <textarea
+              className="wf-textarea"
+              rows={4}
+              maxLength={800}
+              placeholder="Write your thoughts about the Tower Burger, Chicken Paratha Roll, or cafe vibe..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </div>
+
+          <button type="submit" className="wf-btn-gold" style={{ width: '100%' }} disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit'}
+          </button>
+        </motion.div>
+      </form>
     </div>
   );
 }
