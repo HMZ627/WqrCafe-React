@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 
 export default function ReviewForm() {
@@ -40,7 +41,7 @@ export default function ReviewForm() {
         setText('');
         setStatus({
           type: 'ok',
-          msg: 'Thank you. Your review is now featured in Voices After Darkness.',
+          msg: 'Thank you. Your review is now featured in Voices of our Regulars.',
         });
       }
     } catch {
@@ -52,18 +53,30 @@ export default function ReviewForm() {
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-      <h2 className="wf-section-title">
-        Submit a <span>Review</span>
-      </h2>
-      <p className="wf-section-sub">
-        Loved the crunch, smoke, and warmth? Your review goes live on our wall.
-      </p>
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <h2 className="wf-section-title">
+          Submit a <span>Review</span>
+        </h2>
+        <p className="wf-section-sub">
+          Loved the crunch, smoke, and warmth? Your review goes live on our wall.
+        </p>
+      </motion.div>
 
       {status.msg && (
         <div className={status.type === 'ok' ? 'wf-alert-ok' : 'wf-alert-err'}>{status.msg}</div>
       )}
 
-      <form className="wf-card" onSubmit={handleSubmit}>
+      <motion.form
+        className="wf-card"
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div style={{ marginBottom: '1rem' }}>
           <label className="wf-label">Your Name (Optional)</label>
           <input
@@ -128,7 +141,7 @@ export default function ReviewForm() {
         <button type="submit" className="wf-btn-gold" style={{ width: '100%' }} disabled={submitting}>
           {submitting ? 'Submitting...' : 'Submit'}
         </button>
-      </form>
+      </motion.form>
     </div>
   );
 }
