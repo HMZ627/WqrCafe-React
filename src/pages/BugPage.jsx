@@ -29,7 +29,10 @@ export default function BugPage() {
       } else {
         setName('');
         setText('');
-        setStatus({ type: 'ok', msg: 'Bug report received. Thank you for helping improve Waqar Foodies.' });
+        setStatus({
+          type: 'ok',
+          msg: 'Bug report received. Thank you for helping improve Waqar Foodies.',
+        });
       }
     } catch {
       setStatus({ type: 'err', msg: 'Network error. Please try again later.' });
@@ -41,9 +44,9 @@ export default function BugPage() {
   return (
     <motion.div
       className="wf-page-container"
-      initial={{ opacity: 0, y: 32, filter: 'blur(18px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
     >
       <div style={{ maxWidth: '640px', margin: '0 auto' }}>
         <h2 className="wf-section-title">
