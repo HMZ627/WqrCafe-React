@@ -6,19 +6,19 @@
   --wf-cream-muted: #e0d6c6;
   --wf-gold: #d4af37;
   --wf-gold-bright: #f0ca5a;
-  --wf-border: rgba(255, 246, 220, 0.24);
+  --wf-border: rgba(255, 246, 220, 0.26);
   --wf-glass-bg: linear-gradient(
     135deg,
-    rgba(255, 250, 236, 0.11) 0%,
-    rgba(255, 248, 228, 0.035) 50%,
-    rgba(255, 235, 180, 0.075) 100%
+    rgba(255, 250, 236, 0.08) 0%,
+    rgba(255, 248, 228, 0.02) 50%,
+    rgba(255, 235, 180, 0.05) 100%
   );
-  --wf-glass-blur: blur(22px) saturate(165%);
+  --wf-glass-blur: blur(18px) saturate(165%);
   --wf-glass-shadow:
     0 24px 60px rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px rgba(255, 255, 255, 0.36),
-    inset 1px 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 -1px 1px rgba(255, 215, 110, 0.12);
+    inset 0 1px 1px rgba(255, 255, 255, 0.42),
+    inset 1px 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 -1px 1px rgba(255, 215, 110, 0.14);
 }
 
 * {
@@ -66,14 +66,14 @@ button {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: linear-gradient(180deg, rgba(255, 250, 236, 0.08), rgba(14, 13, 10, 0.35));
-  backdrop-filter: blur(22px) saturate(155%);
-  -webkit-backdrop-filter: blur(22px) saturate(155%);
-  border-bottom: 1px solid rgba(255, 246, 220, 0.18);
+  background: linear-gradient(180deg, rgba(255, 250, 236, 0.08), rgba(14, 13, 10, 0.32));
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  border-bottom: 1px solid rgba(255, 246, 220, 0.2);
   padding: 0.65rem 2.2rem;
   box-shadow:
     0 12px 36px rgba(0, 0, 0, 0.38),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .wf-navbar-inner {
@@ -344,8 +344,8 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   right: 0;
   width: min(360px, 90vw);
   background: linear-gradient(145deg, rgba(35, 31, 24, 0.52), rgba(14, 13, 10, 0.44));
-  backdrop-filter: blur(24px) saturate(165%);
-  -webkit-backdrop-filter: blur(24px) saturate(165%);
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
   border: 1px solid rgba(255, 246, 220, 0.28);
   border-radius: 20px;
   padding: 1.2rem;
@@ -435,25 +435,25 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   backdrop-filter: var(--wf-glass-blur);
   -webkit-backdrop-filter: var(--wf-glass-blur);
   border: 1px solid var(--wf-border);
-  border-radius: 24px;
+  border-radius: 26px;
   padding: 1.65rem;
   box-shadow: var(--wf-glass-shadow);
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
 }
 
-/* Optical 14px bevel ring along the edges of Liquid Glass containers (all browsers) */
+/* Subtle glossy specular highlight along curved edges */
 .wf-card::before,
 .wf-glass::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 13px;
+  padding: 12px;
   pointer-events: none;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.24) 0%,
-    rgba(255, 240, 195, 0.04) 45%,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 240, 195, 0.03) 45%,
     rgba(255, 215, 110, 0.16) 100%
   );
   -webkit-mask:
@@ -467,12 +467,12 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   z-index: 2;
 }
 
-/* Chromium-only real SVG feDisplacementMap edge refraction (safely skipped on Safari/Firefox) */
+/* Chromium real edge-bending refraction + RGB fringing */
 html.wf-liquid-supported .wf-card,
 html.wf-liquid-supported .wf-glass,
 html.wf-liquid-supported .wf-bag-popover,
 html.wf-liquid-supported .wf-modal-dialog {
-  backdrop-filter: url(#wf-liquid-edge) saturate(185%) brightness(1.08);
+  backdrop-filter: url(#wf-liquid-edge) saturate(165%) brightness(1.06);
 }
 
 .wf-input,
@@ -560,10 +560,10 @@ html.wf-liquid-supported .wf-modal-dialog {
   max-height: 90dvh;
   overflow-y: auto;
   background: linear-gradient(145deg, rgba(34, 30, 23, 0.58) 0%, rgba(16, 14, 11, 0.5) 100%);
-  backdrop-filter: blur(26px) saturate(165%);
-  -webkit-backdrop-filter: blur(26px) saturate(165%);
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
   border: 1px solid rgba(255, 246, 220, 0.28);
-  border-radius: 24px;
+  border-radius: 26px;
   padding: 1.7rem 1.85rem;
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.82),
