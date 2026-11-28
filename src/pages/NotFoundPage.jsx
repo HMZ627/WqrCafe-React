@@ -7,14 +7,12 @@ export default function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      className="wf-page-container"
-      initial={{ opacity: 0, y: 28 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div
+    <div className="wf-page-container">
+      <motion.div
         className="wf-card"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         style={{
           maxWidth: '720px',
           margin: '1rem auto',
@@ -84,7 +82,7 @@ export default function NotFoundPage() {
             Explore Menu
           </button>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
