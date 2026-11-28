@@ -316,13 +316,13 @@ export default function SpatialShowcase({ revealed }) {
         width: '100vw',
         height: '100dvh',
         transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${inBgBehindReview ? 0.82 : 1})`,
-        filter: inBgBehindReview ? 'blur(12px)' : 'none',
+        ...(inBgBehindReview ? { filter: 'blur(12px)' } : {}),
         opacity: inBgBehindReview ? 0.32 : 1,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: activeRoom === 3 ? 'auto' : 'none',
         transition:
           'transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), filter 0.85s ease, opacity 0.85s ease',
-        willChange: 'transform, filter, opacity',
+        willChange: 'transform',
         zIndex: inBgBehindReview ? 11 : activeRoom === 3 ? 12 : 10,
         background: 'transparent',
       };
@@ -338,13 +338,13 @@ export default function SpatialShowcase({ revealed }) {
         width: '100vw',
         height: '100dvh',
         transform: `translate3d(${dx}vw, ${dy}dvh, 0) scale(${isActive ? 1 : 1.18})`,
-        filter: isActive ? 'none' : 'blur(18px)',
+        ...(isActive ? {} : { filter: 'blur(18px)' }),
         opacity: isActive ? 1 : 0,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: isActive ? 'auto' : 'none',
         transition:
           'transform 0.88s cubic-bezier(0.22, 1, 0.36, 1), filter 0.82s ease, opacity 0.78s ease',
-        willChange: 'transform, filter, opacity',
+        willChange: 'transform',
         zIndex: 14,
         background: 'transparent',
       };
