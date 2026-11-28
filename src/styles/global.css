@@ -6,21 +6,20 @@
   --wf-cream-muted: #e0d6c6;
   --wf-gold: #d4af37;
   --wf-gold-bright: #f0ca5a;
-  --wf-border: rgba(255, 246, 220, 0.3);
-  --wf-glass-bg: radial-gradient(
-    ellipse 86% 80% at 50% 50%,
-    rgba(255, 250, 236, 0.015) 45%,
-    rgba(255, 244, 214, 0.085) 84%,
-    rgba(255, 240, 195, 0.19) 100%
+  --wf-border: rgba(255, 246, 220, 0.24);
+  --wf-glass-bg: linear-gradient(
+    135deg,
+    rgba(255, 250, 236, 0.045) 0%,
+    rgba(255, 248, 228, 0.01) 50%,
+    rgba(255, 235, 180, 0.03) 100%
   );
-  --wf-glass-blur: blur(3px) saturate(150%);
+  --wf-glass-blur: blur(3px) saturate(145%);
   --wf-glass-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.56),
-    inset 0 0 42px rgba(255, 244, 210, 0.13),
-    inset 0 0 14px rgba(255, 220, 120, 0.16),
-    inset 0 2px 3px rgba(255, 255, 255, 0.46),
-    inset 2px 0 3px rgba(255, 255, 255, 0.22),
-    inset 0 -2px 4px rgba(255, 200, 75, 0.22);
+    0 24px 60px rgba(0, 0, 0, 0.48),
+    inset 0 0 28px rgba(255, 248, 228, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.36),
+    inset 1px 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(255, 215, 110, 0.12);
 }
 
 * {
@@ -68,14 +67,14 @@ button {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: linear-gradient(180deg, rgba(255, 250, 236, 0.08), rgba(14, 13, 10, 0.24));
-  backdrop-filter: blur(6px) saturate(150%);
-  -webkit-backdrop-filter: blur(6px) saturate(150%);
-  border-bottom: 1px solid rgba(255, 246, 220, 0.24);
+  background: linear-gradient(180deg, rgba(255, 250, 236, 0.05), rgba(14, 13, 10, 0.22));
+  backdrop-filter: blur(6px) saturate(145%);
+  -webkit-backdrop-filter: blur(6px) saturate(145%);
+  border-bottom: 1px solid rgba(255, 246, 220, 0.2);
   padding: 0.65rem 2.2rem;
   box-shadow:
     0 12px 36px rgba(0, 0, 0, 0.35),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.14);
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .wf-navbar-inner {
@@ -127,23 +126,23 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 250, 236, 0.08), rgba(255, 248, 228, 0.02));
+  background: linear-gradient(135deg, rgba(255, 250, 236, 0.06), rgba(255, 248, 228, 0.015));
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   color: var(--wf-cream);
-  border: 1px solid rgba(255, 246, 220, 0.26);
+  border: 1px solid rgba(255, 246, 220, 0.24);
   border-radius: 999px;
   padding: 0.52rem 1.15rem;
   font-weight: 600;
   font-size: 0.92rem;
   white-space: nowrap;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
   transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
 .wf-btn:hover {
-  background: linear-gradient(135deg, rgba(255, 246, 214, 0.18), rgba(255, 235, 175, 0.07));
-  border-color: rgba(255, 245, 210, 0.6);
+  background: linear-gradient(135deg, rgba(255, 246, 214, 0.16), rgba(255, 235, 175, 0.06));
+  border-color: rgba(255, 245, 210, 0.58);
   color: #ffffff;
   filter: brightness(1.16);
   box-shadow:
@@ -183,6 +182,7 @@ button {
   cursor: not-allowed;
 }
 
+/* Left-to-right white flash sweep on hover for all non-Order buttons */
 .wf-btn::after,
 .wf-btn-gold::after,
 .wf-qty-btn::after,
@@ -292,14 +292,14 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(255, 250, 236, 0.1), rgba(255, 248, 228, 0.03));
+  background: linear-gradient(135deg, rgba(255, 250, 236, 0.08), rgba(255, 248, 228, 0.02));
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 246, 220, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.32);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28);
   transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
@@ -308,7 +308,7 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   filter: brightness(1.16);
   box-shadow:
     0 0 22px rgba(240, 202, 90, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.42);
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
   transform: translateY(-2px) scale(1.03);
 }
 
@@ -344,19 +344,17 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   top: 58px;
   right: 0;
   width: min(360px, 90vw);
-  background: radial-gradient(
-    ellipse 86% 80% at 50% 50%,
-    rgba(20, 18, 14, 0.28) 45%,
-    rgba(255, 244, 214, 0.14) 88%,
-    rgba(255, 240, 195, 0.24) 100%
-  );
+  background: linear-gradient(145deg, rgba(24, 21, 16, 0.34), rgba(14, 13, 10, 0.24));
   backdrop-filter: blur(6px) saturate(155%);
   -webkit-backdrop-filter: blur(6px) saturate(155%);
-  border: 1px solid rgba(255, 246, 220, 0.32);
-  border-radius: 22px;
+  border: 1px solid rgba(255, 246, 220, 0.28);
+  border-radius: 20px;
   padding: 1.2rem;
-  box-shadow: var(--wf-glass-shadow);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.72),
+    inset 0 0 24px rgba(255, 248, 228, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.38);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
   transform-origin: top right;
   z-index: 2000;
 }
@@ -431,7 +429,7 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
 }
 
 /* ============================================================================
-   Dense-Edge Liquid Glass Containers (Thick curved edge glow fading inward)
+   Clear iPhone-Style Liquid Glass (Soft inward-fading rim, zero rectangular band)
    ============================================================================ */
 .wf-card,
 .wf-glass {
@@ -439,14 +437,14 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   background: var(--wf-glass-bg);
   backdrop-filter: var(--wf-glass-blur);
   -webkit-backdrop-filter: var(--wf-glass-blur);
-  border: 1.5px solid var(--wf-border);
+  border: 1px solid var(--wf-border);
   border-radius: 28px;
   padding: 1.65rem;
   box-shadow: var(--wf-glass-shadow);
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.94), 0 0 6px rgba(0, 0, 0, 0.88);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.92), 0 0 6px rgba(0, 0, 0, 0.85);
 }
 
-/* Soft inward-fading dense rim & specular glass reflection */
+/* Soft radial glass sheen that fades smoothly toward the inside of the container */
 .wf-card::before,
 .wf-glass::before {
   content: "";
@@ -455,17 +453,29 @@ MIT License, Copyright (c) nima-mollazadeh (XoCode)
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 84% 78% at 50% 50%, transparent 56%, rgba(255, 244, 210, 0.11) 86%, rgba(255, 250, 236, 0.24) 100%),
-    radial-gradient(110% 60% at 15% 0%, rgba(255, 255, 255, 0.14) 0%, transparent 52%);
+    radial-gradient(120% 70% at 12% 0%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.025) 32%, transparent 65%),
+    radial-gradient(90% 60% at 88% 100%, rgba(255, 215, 110, 0.07) 0%, transparent 58%);
   z-index: 2;
 }
 
-/* Chromium real Sobel-bezel pixel refraction + prism edge fringing */
+/* Chromium crisp edge-bending refraction + RGB prism fringing */
 html.wf-liquid-supported .wf-card,
 html.wf-liquid-supported .wf-glass,
 html.wf-liquid-supported .wf-bag-popover,
 html.wf-liquid-supported .wf-modal-dialog {
-  backdrop-filter: url(#wf-liquid-edge) saturate(155%) brightness(1.06);
+  backdrop-filter: url(#wf-liquid-edge) saturate(145%) brightness(1.04);
+}
+
+/* Clean frosted glass without SVG edge distortion (used for Home Review overlay) */
+html.wf-liquid-supported .wf-no-edge-distort,
+.wf-no-edge-distort {
+  background: linear-gradient(
+    145deg,
+    rgba(28, 25, 20, 0.56) 0%,
+    rgba(16, 14, 11, 0.46) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
 }
 
 .wf-input,
@@ -552,19 +562,18 @@ html.wf-liquid-supported .wf-modal-dialog {
   max-width: 620px;
   max-height: 90dvh;
   overflow-y: auto;
-  background: radial-gradient(
-    ellipse 86% 80% at 50% 50%,
-    rgba(20, 18, 14, 0.34) 45%,
-    rgba(255, 244, 214, 0.14) 88%,
-    rgba(255, 240, 195, 0.24) 100%
-  );
+  background: linear-gradient(145deg, rgba(24, 21, 16, 0.36) 0%, rgba(14, 13, 10, 0.28) 100%);
   backdrop-filter: blur(8px) saturate(155%);
   -webkit-backdrop-filter: blur(8px) saturate(155%);
-  border: 1.5px solid rgba(255, 246, 220, 0.32);
+  border: 1px solid rgba(255, 246, 220, 0.28);
   border-radius: 26px;
   padding: 1.7rem 1.85rem;
-  box-shadow: var(--wf-glass-shadow);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.82),
+    inset 0 0 28px rgba(255, 248, 228, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.38),
+    inset 1px 0 1px rgba(255, 255, 255, 0.16);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.88);
   position: relative;
 }
 
